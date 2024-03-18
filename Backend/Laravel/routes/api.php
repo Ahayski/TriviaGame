@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AvatarController;
+use App\Http\Controllers\DiamondController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QuestionController;
@@ -42,3 +43,9 @@ Route::get('/avatars', [AvatarController::class, 'index']);
 Route::post('/avatar', [AvatarController::class, 'store']);
 Route::get('/avatar/{id}', [AvatarController::class, 'show']);
 Route::delete('/avatar/{id}', [AvatarController::class, 'destroy']);
+
+//diamond
+Route::get('/diamonds', [DiamondController::class, 'index']);
+Route::post('/diamond', [DiamondController::class, 'store']);
+Route::delete('/diamond/{id}', [DiamondController::class, 'destroy']);
+// Route::get('/diamond/{id}', [DiamondController::class, 'show']);
