@@ -1,9 +1,13 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/Ahayski/TriviaGame/database"
+	"github.com/Ahayski/TriviaGame/dto"
 	"github.com/Ahayski/TriviaGame/models"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func AvatarGetAll(c *fiber.Ctx) error {
@@ -26,7 +30,7 @@ func AvatarGetAll(c *fiber.Ctx) error {
 func AvatarGetOne(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var avatar models.Avatars
-	err := database.DB.First(&avatar, id).Error
+	err := database.DB.Preload("PurchasedBy").First(&avatar, id).Error
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(&fiber.Map{
@@ -39,4 +43,64 @@ func AvatarGetOne(c *fiber.Ctx) error {
 		"message": "succes get avatar",
 		"data":    avatar,
 	})
+}
+
+func BuyAvatar(c *fiber.Ctx) error {
+	var avatar models.Avatars
+	var user models.Users
+	avatarId := c.FormValue("avatarId")
+
+	err := database.DB.First(&avatar, "id = ?", avatarId).Error
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(&fiber.Map{
+			"messsage": err.Error(),
+		})
+	}
+
+	userInfo := c.Locals("userInfo").(jwt.MapClaims)
+	email := userInfo["email"].(string)
+
+	err = database.DB.Preload("PurchasedAvatars").First(&user, "email = ?", email).Error
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	for _, v := range user.PurchasedAvatars {
+		if v.ID == avatar.ID {
+			c.Status(fiber.StatusBadRequest)
+			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "Already purchased"}
+			return c.JSON(&fiber.Map{
+				"message": response,
+			})
+		}
+	}
+
+	if user.Diamond < avatar.Price {
+		c.Status(fiber.StatusBadRequest)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "Not enough diamond"}
+		return c.JSON(&fiber.Map{
+			"message": response,
+		})
+	}
+
+	user.Diamond -= avatar.Price
+
+	user.PurchasedAvatars = append(user.PurchasedAvatars, models.Avatars{
+		ID:          avatar.ID,
+		AvatarImage: avatar.AvatarImage,
+	})
+
+	if err := database.DB.Save(&user).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+			"message": "Failed to update user",
+		})
+	}
+
+	return c.JSON(&fiber.Map{
+		"message": "Avatar purchased successfully",
+		"data":    user,
+	})
+
 }
