@@ -42,6 +42,7 @@ Route::delete('/admin/{id}', [AdminController::class, 'destroy']);
 Route::get('/avatars', [AvatarController::class, 'index']);
 Route::post('/avatar', [AvatarController::class, 'store']);
 Route::get('/avatar/{id}', [AvatarController::class, 'show']);
+Route::put('/avatar/{id}', [AvatarController::class, 'update']);
 Route::delete('/avatar/{id}', [AvatarController::class, 'destroy']);
 
 //diamond

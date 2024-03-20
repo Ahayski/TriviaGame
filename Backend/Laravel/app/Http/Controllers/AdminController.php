@@ -36,15 +36,14 @@ class AdminController extends Controller
      * Store a newly created resource in storage.
      */
     public function register(Request $request) {
-
         $rules = [
             'name' => 'required|max:32',   
-            'email' => 'required|email',
+            'email' => 'required|email|unique:admins,email',
             'password'=> 'required|max:32|string'
         ];
-
+    
         $validator = Validator::make($request->all(), $rules);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status'=>'false',
@@ -52,21 +51,29 @@ class AdminController extends Controller
             ]);
         }
         
-            $admin = new Admin();
-
-            $admin->name=$request->name;
-            $admin->email=$request->email;
-            $admin->password= Hash::make($request->password);
-
-            $admin->save();
-
-            $data = [
-                'status'=> 200,
-                'message'=> 'succes create user',
-                'data'=>$admin
-            ];
-
-            return response()->json($data, 200);
+        // Pengecekan apakah email sudah terdaftar sebelumnya
+        if (Admin::where('email', $request->email)->exists()) {
+            return response()->json([
+                'status' => 'false',
+                'message' => 'Email is already registered.'
+            ]);
+        }
+    
+        $admin = new Admin();
+    
+        $admin->name = $request->name;
+        $admin->email = $request->email;
+        $admin->password = Hash::make($request->password);
+    
+        $admin->save();
+    
+        $data = [
+            'status' => 200,
+            'message' => 'success create user',
+            'data' => $admin
+        ];
+    
+        return response()->json($data, 200);
     }
 
     /**

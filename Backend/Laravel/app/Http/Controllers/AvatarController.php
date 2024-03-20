@@ -89,37 +89,29 @@ class AvatarController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
      * Remove the specified resource from storage.
      */
 
-    public function destroy(string $id)
-    {
-        try {
+     public function destroy(string $id)
+     {
+         try {
              $avatar = Avatar::find($id);
      
              if (!$avatar) {
                  return response()->json([
                      'status'=> 'failed',
                      'message'=> 'data not found'
-                 ], 401);
+                 ], 404); // Mengubah kode status menjadi 404 untuk data tidak ditemukan
              }
      
              $image = $avatar->avatarImage;
-            //  $folderPath = 'Trivia-game';
+             // Parse publicId dari URL gambar
+             $publicId = pathinfo($image)['filename'];
      
              // Hapus gambar dari Cloudinary
-             $publicId = substr($image, strpos($image, 'Trivia-game/') + strlen('Trivia-game/'));
              Cloudinary::destroy($publicId);
      
-            //  Hapus entri Avatar dari database
+             // Hapus entri Avatar dari database
              $avatar->delete();
      
              return response()->json([
@@ -127,12 +119,63 @@ class AvatarController extends Controller
                  'message' => 'success delete Avatar',
                  'data' => $avatar
              ]);
-        } catch (\Throwable $th) {
+         } catch (\Throwable $th) {
              return response()->json([
                  'message' => 'something when wrong',
                  'error' => $th->getMessage(),
              ], 500);
+         }
+     }
+        
+     public function update(Request $request, string $id)
+{
+    try {
+        // Temukan Avatar yang ingin diupdate
+        $avatar = Avatar::find($id);
+
+        // Jika Avatar tidak ditemukan, kembalikan respons dengan status 'failed'
+        if (!$avatar) {
+            return response()->json([
+                'status'=> 'failed',
+                'message'=> 'Avatar not found'
+            ], 404);
         }
+
+        // Validasi input yang diterima dari request
+        $validator = Validator::make($request->all(), [
+            'price' => 'required',
+            'purchase'=> 'required'
+        ]);
+
+        // Jika validasi gagal, kembalikan pesan error
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => $validator->errors()
+            ], 400);
+        }
+
+        // Update atribut Avatar
+        $avatar->price = $request->price;
+        $avatar->purchase = $request->purchase;
+
+        // Simpan perubahan ke database
+        $avatar->save();
+
+        // Kembalikan respons yang menyatakan bahwa update berhasil
+        return response()->json([
+            'status'=> 'success',
+            'message' => 'Avatar updated successfully',
+            'data' => $avatar
+        ], 200);
+    } catch (\Throwable $th) {
+        // Tangani jika terjadi kesalahan
+        return response()->json([
+            'message' => 'Something went wrong',
+            'error' => $th->getMessage(),
+        ], 500);
     }
+}
+
 
 }
