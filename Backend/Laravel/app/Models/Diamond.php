@@ -9,15 +9,11 @@ use Illuminate\Notifications\Notifiable;
 
 class Diamond extends Model
 {
-    use HasFactory, Notifiable, HasUuids;
+    use HasFactory, Notifiable;
     protected $fillable = [
         'amount',
         'image',
         'price',
     ];
 
-    public function getIncrementing ()
-    {
-        return false;
-    }
 }

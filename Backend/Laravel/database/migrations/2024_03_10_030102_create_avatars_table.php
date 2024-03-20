@@ -20,6 +20,7 @@ return new class extends Migration
             $table->boolean('purchase');
             $table->timestamps();
         });
+
     }
 
     /**
