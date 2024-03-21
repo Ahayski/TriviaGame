@@ -1,17 +1,18 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { toast } from 'react-toastify';
-import { useFormik } from 'formik';
-import { useTranslation } from 'react-i18next';
-import * as Yup from 'yup';
-import { setWindowClass } from '@app/utils/helpers';
-import { Form, InputGroup } from 'react-bootstrap';
-import { Checkbox } from '@profabric/react-components';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { useFormik } from "formik";
+import { useTranslation } from "react-i18next";
+import * as Yup from "yup";
+import { setWindowClass } from "@app/utils/helpers";
+import { Form, InputGroup } from "react-bootstrap";
+import { Checkbox } from "@profabric/react-components";
 
-import { authLogin } from '@app/utils/oidc-providers';
-import { setAuthentication } from '@app/store/reducers/auth';
-import { Button } from '@app/styles/common';
+// import { authLogin } from "@app/utils/oidc-providers";
+import { setAuthentication } from "@app/store/reducers/auth";
+import { Button } from "@app/styles/common";
+import { API } from "@app/lib/axios";
 
 const Register = () => {
   const [isAuthLoading, setAuthLoading] = useState(false);
@@ -22,16 +23,23 @@ const Register = () => {
 
   const navigate = useNavigate();
 
-  const register = async (email: string, password: string) => {
+  const register = async (name: string, email: string, password: string) => {
     try {
       setAuthLoading(true);
-      const response = await authLogin(email, password);
-      dispatch(setAuthentication(response as any));
-      toast.success('Registration is success');
-      navigate('/');
+      // const response = await authLogin(email, password);
+      // dispatch(setAuthentication(response as any));
+      const response = await API.post("/admin/register", {
+        name,
+        email,
+        password,
+      });
+      toast.success("Registration is success");
+      console.log("res", response);
+      navigate("/");
     } catch (error: any) {
-      toast.error(error.message || 'Failed');
+      toast.error(error.message || "Failed");
       setAuthLoading(false);
+      console.log(error);
     }
   };
 
@@ -43,9 +51,9 @@ const Register = () => {
       // setGoogleAuthLoading(false);
       // toast.success('Authentication is succeed!');
       // navigate('/');
-      throw new Error('Not implemented');
+      throw new Error("Not implemented");
     } catch (error: any) {
-      toast.error(error.message || 'Failed');
+      toast.error(error.message || "Failed");
       setGoogleAuthLoading(false);
     }
   };
@@ -57,36 +65,34 @@ const Register = () => {
       // dispatch(setAuthentication(response as any));
       // setFacebookAuthLoading(false);
       // navigate('/');
-      throw new Error('Not implemented');
+      throw new Error("Not implemented");
     } catch (error: any) {
       setFacebookAuthLoading(false);
-      toast.error(error.message || 'Failed');
+
+      toast.error(error.message || "Failed");
     }
   };
 
   const { handleChange, values, handleSubmit, touched, errors } = useFormik({
     initialValues: {
-      email: '',
-      password: '',
-      passwordRetype: '',
+      name: "",
+      email: "",
+      password: "",
     },
     validationSchema: Yup.object({
-      email: Yup.string().email('Invalid email address').required('Required'),
+      name: Yup.string().required("Required"),
+      email: Yup.string().email("Invalid email address").required("Required"),
       password: Yup.string()
-        .min(5, 'Must be 5 characters or more')
-        .max(30, 'Must be 30 characters or less')
-        .required('Required'),
-      passwordRetype: Yup.string()
-        .min(5, 'Must be 5 characters or more')
-        .max(30, 'Must be 30 characters or less')
-        .required('Required'),
+        .min(5, "Must be 5 characters or more")
+        .max(30, "Must be 30 characters or less")
+        .required("Required"),
     }),
     onSubmit: (values) => {
-      register(values.email, values.password);
+      register(values.name, values.email, values.password);
     },
   });
 
-  setWindowClass('hold-transition register-page');
+  setWindowClass("hold-transition register-page");
 
   return (
     <div className="register-box">
@@ -98,8 +104,34 @@ const Register = () => {
           </Link>
         </div>
         <div className="card-body">
-          <p className="login-box-msg">{t('register.registerNew')}</p>
-          <form onSubmit={handleSubmit}>
+          <p className="login-box-msg">{t("register.registerNew")}</p>
+          <form onSubmit={handleSubmit} method="post">
+            <div className="mb-3">
+              <InputGroup className="mb-3">
+                <Form.Control
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="name"
+                  onChange={handleChange}
+                  value={values.name}
+                  isValid={touched.name && !errors.name}
+                  isInvalid={touched.name && !!errors.name}
+                />
+                {touched.name && errors.name ? (
+                  <Form.Control.Feedback type="invalid">
+                    {errors.name}
+                  </Form.Control.Feedback>
+                ) : (
+                  <InputGroup.Append>
+                    <InputGroup.Text>
+                      <i className="fas fa-envelope" />
+                    </InputGroup.Text>
+                  </InputGroup.Append>
+                )}
+              </InputGroup>
+            </div>
+
             <div className="mb-3">
               <InputGroup className="mb-3">
                 <Form.Control
@@ -151,7 +183,7 @@ const Register = () => {
               </InputGroup>
             </div>
 
-            <div className="mb-3">
+            {/* <div className="mb-3">
               <InputGroup className="mb-3">
                 <Form.Control
                   id="passwordRetype"
@@ -176,25 +208,22 @@ const Register = () => {
                   </InputGroup.Append>
                 )}
               </InputGroup>
-            </div>
+            </div> */}
 
             <div className="row">
               <div className="col-7">
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ display: "flex", alignItems: "center" }}>
                   <Checkbox checked={false} />
-                  <label style={{ margin: 0, padding: 0, paddingLeft: '4px' }}>
+                  <label style={{ margin: 0, padding: 0, paddingLeft: "4px" }}>
                     <span>I agree to the </span>
-                    <Link to="/">terms</Link>{' '}
+                    <Link to="/">terms</Link>{" "}
                   </label>
                 </div>
               </div>
               <div className="col-5">
-                <Button
-                  loading={isAuthLoading}
-                  disabled={isGoogleAuthLoading || isFacebookAuthLoading}
-                >
-                  {t('register.label')}
-                </Button>
+                <button type="submit" className="btn btn-primary btn-block">
+                  Register
+                </button>
               </div>
             </div>
           </form>
@@ -206,8 +235,8 @@ const Register = () => {
               disabled={isAuthLoading || isGoogleAuthLoading}
             >
               <i className="fab fa-facebook mr-2" />
-              {t('login.button.signIn.social', {
-                what: 'Facebook',
+              {t("login.button.signIn.social", {
+                what: "Facebook",
               })}
             </Button>
             <Button
@@ -217,11 +246,11 @@ const Register = () => {
               disabled={isAuthLoading || isFacebookAuthLoading}
             >
               <i className="fab fa-google mr-2" />
-              {t('login.button.signUp.social', { what: 'Google' })}
+              {t("login.button.signUp.social", { what: "Google" })}
             </Button>
           </div>
           <Link to="/login" className="text-center">
-            {t('register.alreadyHave')}
+            {t("register.alreadyHave")}
           </Link>
         </div>
       </div>
