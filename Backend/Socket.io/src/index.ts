@@ -2,26 +2,22 @@ import express from "express";
 import http from "http";
 import cors from "cors";
 import { Server, Socket } from "socket.io";
-
-interface IUsers {
-  id: string;
-  username: string;
-  room: string;
-}
+import { IUsers } from "./utils/types";
+import { countdown } from "./utils/countdown";
 
 const app = express();
 const server = http.createServer();
 
 app.use(cors());
 
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
   },
 });
 
-const users: IUsers[] = [];
+export const users: IUsers[] = [];
 
 io.on("connection", (socket) => {
   console.log(socket.id);
@@ -35,6 +31,7 @@ io.on("connection", (socket) => {
       };
       users.push(user);
       socket.join(user.room);
+      countdown(user.room);
       console.log(users);
     } else if (users.length > 0 && users.length < 5) {
       user = {
@@ -57,7 +54,12 @@ io.on("connection", (socket) => {
     socket.emit("userList", users);
     console.log(users);
   });
-  socket.on("closeRoom", ({ username, room }) => {
+
+  socket.on("sendAnswer", (dataAnswer) => {
+    io.to(dataAnswer.room).emit("receiveAnswer", dataAnswer);
+  });
+
+  socket.on("leaveRoom", ({ username, room }) => {
     const index = JSON.stringify(
       users.findIndex((value) => value.username === username)
     );
@@ -65,9 +67,6 @@ io.on("connection", (socket) => {
     socket.leave(room);
     users.splice(Number(index), 1);
     io.emit("userList", users);
-  });
-  socket.on("sendAnswer", (dataAnswer) => {
-    io.to(dataAnswer.room).emit("receiveAnswer", dataAnswer);
   });
 });
 

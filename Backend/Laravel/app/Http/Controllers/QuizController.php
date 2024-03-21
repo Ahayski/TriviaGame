@@ -76,29 +76,6 @@ class QuizController extends Controller
     return response()->json(['status' => 'success', 'message' => 'Quiz created successfully', 'data' => $quiz]);
 }
 
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'question' => 'required|string',
-            'answer' => 'required|string',
-            'options' => 'required|array',
-        ]);
-
-        $quiz = Quiz::find($id);
-
-        if (!$quiz) {
-            return response()->json(['status' => 'error', 'message' => 'Quiz not found'], 404);
-        }
-
-        $quiz->update([
-            'question' => $request->question,
-            'answer' => $request->answer,
-            'options' => $request->options,
-        ]);
-
-        return response()->json(['status' => 'success', 'message' => 'Quiz updated successfully', 'data' => $quiz]);
-    }
-
     public function destroy($id)
     {
         $quiz = Quiz::find($id);
@@ -111,4 +88,40 @@ class QuizController extends Controller
 
         return response()->json(['status' => 'success', 'message' => 'Quiz deleted successfully']);
     }
+
+    public function update(Request $request, $id)
+{
+    $validator = Validator::make($request->all(), [
+        'question' => 'required|string',
+        'answer' => 'required|string',
+        'options' => 'required|array',
+    ]);
+
+    $validator->after(function ($validator) use ($request) {
+        // Validasi bahwa jawaban ada di dalam opsi
+        if (!in_array($request->answer, $request->options)) {
+            $validator->errors()->add('answer', 'Jawaban harus ada di dalam opsi.');
+        }
+    });
+
+    if ($validator->fails()) {
+        return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
+    }
+
+    $quiz = Quiz::find($id);
+
+    if (!$quiz) {
+        return response()->json(['status' => 'error', 'message' => 'Quiz not found'], 404);
+    }
+
+    $quiz->update([
+        'question' => $request->question,
+        'answer' => $request->answer,
+        'options' => $request->options,
+    ]);
+
+    return response()->json(['status' => 'success', 'message' => 'Quiz updated successfully', 'data' => $quiz]);
+}
+
+
 }
