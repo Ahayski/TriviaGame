@@ -16,6 +16,7 @@ export const Diamon = () => {
   return (
     <div>
       <div>
+        <h1 className="mb-2 ml-4 text-gray-800 text-bold">Diamon</h1>
         <table className="table">
           <thead>
             <tr>
@@ -27,32 +28,56 @@ export const Diamon = () => {
               <th scope="col">Action</th>
             </tr>
           </thead>
+
           <tbody>
-            {dataDiamon.map((diamon, index) => (
-              <tr key={diamon.id}>
-                <td>{index + 1}</td>
-                <td>
-                  <img
-                    src={diamon.image}
-                    alt="image"
-                    style={{ width: "120px", height: "90px" }}
-                  />
-                </td>
-                <td>{diamon.amount}</td>
-                <td>Rp.{diamon.price}</td>
-                <td>
-                  <button
-                    type="button"
-                    className="btn btn-danger"
-                    onClick={() => {
-                      hendelDeleteDiamon(diamon.id);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {dataDiamon.length ? (
+              <>
+                {dataDiamon.map((diamon, index) => (
+                  <tr key={diamon.id}>
+                    <td>{index + 1}</td>
+                    <td>
+                      <img
+                        src={diamon.image}
+                        alt="image"
+                        style={{ width: "120px", height: "90px" }}
+                      />
+                    </td>
+                    <td>{diamon.amount}</td>
+                    <td>Rp.{diamon.price}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="btn btn-danger"
+                        onClick={() => {
+                          hendelDeleteDiamon(diamon.id);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </>
+            ) : (
+              <div
+                className="d-flex justify-content-center align-items-center "
+                style={{
+                  width: "100%",
+                  position: "fixed",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%,-50%)",
+                }}
+              >
+                <div
+                  className="spinner-grow"
+                  style={{ width: "5rem", height: "5rem" }}
+                  role="status"
+                >
+                  <span className="sr-only ">Loading...</span>
+                </div>
+              </div>
+            )}
           </tbody>
         </table>
       </div>
