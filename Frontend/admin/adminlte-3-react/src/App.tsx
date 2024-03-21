@@ -29,6 +29,7 @@ import { Avatar } from "./pages/Avatar";
 import Diamon from "./pages/diamon";
 import { Quiz } from "./pages/Quiz";
 import { AddQuiz } from "./pages/AddQuiz";
+import { EditQuiz } from "./pages/editQuiz";
 
 const { VITE_NODE_ENV } = import.meta.env;
 
@@ -108,6 +109,7 @@ const App = () => {
             <Route path="/avatar" element={<Avatar />} />
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/addQuiz" element={<AddQuiz />} />
+            <Route path="/editQuiz/:id" element={<EditQuiz />} />
             <Route path="/diamon" element={<Diamon />} />
           </Route>
         </Route>

@@ -1,6 +1,7 @@
 import { API } from "@app/lib/axios";
 import { Get_Quiz } from "@app/store/reducers/quiz";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 
 export const useQuiz = () => {
   const dispatch = useDispatch();
@@ -18,6 +19,7 @@ export const useQuiz = () => {
     try {
       const response = await API.delete(`/quizzes/${id}`);
       hendelGetQuiz();
+      toast.info("Delete Quiz succeed!");
       window.location.reload();
       response.data;
     } catch (error) {

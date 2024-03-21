@@ -1,17 +1,18 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { useFormik } from 'formik';
-import { useTranslation } from 'react-i18next';
-import { setAuthentication } from '@store/reducers/auth';
-import { setWindowClass } from '@app/utils/helpers';
-import { Checkbox } from '@profabric/react-components';
-import * as Yup from 'yup';
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useFormik } from "formik";
+import { useTranslation } from "react-i18next";
+import { setAuthentication } from "@store/reducers/auth";
+import { setWindowClass } from "@app/utils/helpers";
+import { Checkbox } from "@profabric/react-components";
+import * as Yup from "yup";
 
-import { authLogin } from '@app/utils/oidc-providers';
-import { Form, InputGroup } from 'react-bootstrap';
-import { Button } from '@app/styles/common';
+import { authLogin } from "@app/utils/oidc-providers";
+import { Form, InputGroup } from "react-bootstrap";
+import { Button } from "@app/styles/common";
+import { API } from "@app/lib/axios";
 
 const Login = () => {
   const [isAuthLoading, setAuthLoading] = useState(false);
@@ -26,14 +27,19 @@ const Login = () => {
     try {
       setAuthLoading(true);
       const response = await authLogin(email, password);
+      // const responsee = await API.post("/admin/login", {
+      //   email,
+      //   password,
+      // });
       dispatch(setAuthentication(response as any));
-      toast.success('Login is succeed!');
+      // console.log("login", responsee);
+      toast.success("Login is succeed!");
       setAuthLoading(false);
       // dispatch(loginUser(token));
-      navigate('/');
+      navigate("/");
     } catch (error: any) {
       setAuthLoading(false);
-      toast.error(error.message || 'Failed');
+      toast.error(error.message || "Failed");
     }
   };
 
@@ -45,10 +51,10 @@ const Login = () => {
       // toast.success('Login is succeeded!');
       // setGoogleAuthLoading(false);
       // navigate('/');
-      throw new Error('Not implemented');
+      throw new Error("Not implemented");
     } catch (error: any) {
       setGoogleAuthLoading(false);
-      toast.error(error.message || 'Failed');
+      toast.error(error.message || "Failed");
     }
   };
 
@@ -59,31 +65,31 @@ const Login = () => {
       // dispatch(setAuthentication(response as any));
       // setFacebookAuthLoading(false);
       // navigate('/');
-      throw new Error('Not implemented');
+      throw new Error("Not implemented");
     } catch (error: any) {
       setFacebookAuthLoading(false);
-      toast.error(error.message || 'Failed');
+      toast.error(error.message || "Failed");
     }
   };
 
   const { handleChange, values, handleSubmit, touched, errors } = useFormik({
     initialValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
     validationSchema: Yup.object({
-      email: Yup.string().email('Invalid email address').required('Required'),
+      email: Yup.string().email("Invalid email address").required("Required"),
       password: Yup.string()
-        .min(5, 'Must be 5 characters or more')
-        .max(30, 'Must be 30 characters or less')
-        .required('Required'),
+        .min(5, "Must be 5 characters or more")
+        .max(30, "Must be 30 characters or less")
+        .required("Required"),
     }),
     onSubmit: (values) => {
       login(values.email, values.password);
     },
   });
 
-  setWindowClass('hold-transition login-page');
+  setWindowClass("hold-transition login-page");
 
   return (
     <div className="login-box">
@@ -95,8 +101,8 @@ const Login = () => {
           </Link>
         </div>
         <div className="card-body">
-          <p className="login-box-msg">{t('login.label.signIn')}</p>
-          <form onSubmit={handleSubmit}>
+          <p className="login-box-msg">{t("login.label.signIn")}</p>
+          <form onSubmit={handleSubmit} method="post">
             <div className="mb-3">
               <InputGroup className="mb-3">
                 <Form.Control
@@ -150,21 +156,17 @@ const Login = () => {
 
             <div className="row">
               <div className="col-8">
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ display: "flex", alignItems: "center" }}>
                   <Checkbox checked={false} />
-                  <label style={{ margin: 0, padding: 0, paddingLeft: '4px' }}>
-                    {t('login.label.rememberMe')}
+                  <label style={{ margin: 0, padding: 0, paddingLeft: "4px" }}>
+                    {t("login.label.rememberMe")}
                   </label>
                 </div>
               </div>
-              <div className="col-4">
-                <Button
-                  loading={isAuthLoading}
-                  disabled={isFacebookAuthLoading || isGoogleAuthLoading}
-                  onClick={handleSubmit as any}
-                >
-                  {t('login.button.signIn.label')}
-                </Button>
+              <div className="col-5">
+                <button type="submit" className="btn btn-primary ">
+                  Login
+                </button>
               </div>
             </div>
           </form>
@@ -176,8 +178,8 @@ const Login = () => {
               disabled={isAuthLoading || isGoogleAuthLoading}
             >
               <i className="fab fa-facebook mr-2" />
-              {t('login.button.signIn.social', {
-                what: 'Facebook',
+              {t("login.button.signIn.social", {
+                what: "Facebook",
               })}
             </Button>
             <Button
@@ -187,15 +189,15 @@ const Login = () => {
               disabled={isAuthLoading || isFacebookAuthLoading}
             >
               <i className="fab fa-google mr-2" />
-              {t('login.button.signIn.social', { what: 'Google' })}
+              {t("login.button.signIn.social", { what: "Google" })}
             </Button>
           </div>
           <p className="mb-1">
-            <Link to="/forgot-password">{t('login.label.forgotPass')}</Link>
+            <Link to="/forgot-password">{t("login.label.forgotPass")}</Link>
           </p>
           <p className="mb-0">
             <Link to="/register" className="text-center">
-              {t('login.label.registerNew')}
+              {t("login.label.registerNew")}
             </Link>
           </p>
         </div>

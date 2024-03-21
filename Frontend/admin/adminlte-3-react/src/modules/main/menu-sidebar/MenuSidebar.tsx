@@ -90,12 +90,17 @@ const MenuSidebar = () => {
     <aside className={`main-sidebar elevation-4 ${sidebarSkin}`}>
       <Link to="/" className="brand-link">
         <div className="brand-image">
-          <StyledBrandImage
-            src="../../../asset/logo.png"
+          {/* <StyledBrandImage
+            src="/img/wakanda.png"
             alt=" Logo"
-            width={30}
-            height={30}
-            rounded
+            width={50}
+            height={50}
+          /> */}
+          <img
+            src="/img/wakanda.png"
+            alt="logo"
+            width={100}
+            className="img-fluid"
           />
         </div>
         <span className="brand-text font-weight-light">KuisWakanda</span>
