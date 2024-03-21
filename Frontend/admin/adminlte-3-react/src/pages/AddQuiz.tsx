@@ -1,20 +1,26 @@
 import { API } from "@app/lib/axios";
 import { QuizType } from "@app/types/InterfaceType";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export const AddQuiz = () => {
+  const [isloding, setIsLoding] = useState(false);
   const [dataQuiz, setDataQuiz] = useState<QuizType>({
     question: "",
     answer: "",
     options: [],
   });
-  console.log(dataQuiz.options);
+  const naviget = useNavigate();
+  // console.log(dataQuiz.options);
   const hendelSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
       const response = await API.post("/quizzes", dataQuiz);
       console.log(response.data);
-      window.location.reload();
+      toast.success("Login is succeed!");
+      setIsLoding(true);
+      naviget("/quiz");
     } catch (err) {
       console.log(err);
     }
@@ -78,6 +84,7 @@ export const AddQuiz = () => {
           <button type="submit" className="btn btn-primary ">
             <i className="fas fa-save"></i> Simpan
           </button>
+
           <button type="submit" className="btn btn-secondary ml-3">
             <a href="/quiz" style={{ color: "white" }}>
               <i className="fa fa-undo"></i> Cancel
