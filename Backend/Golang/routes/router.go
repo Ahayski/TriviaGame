@@ -19,7 +19,8 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/api/users", controllers.UserGetAll)
 	app.Get("/api/user/:id", controllers.UserGetOne)
 	app.Post("/api/user/signup", controllers.SignUp)
-	app.Post("/api/user/login", controllers.Login)
+	// app.Post("/api/user/login", controllers.Login)
+	// app.Patch("/api/updateAvatar", middleware.Auth(controllers.UpdateAvatar))
 	app.Patch("/api/user", middleware.Auth(controllers.UpdateUser))
 	app.Patch("/api/buyAvatar", middleware.Auth(controllers.BuyAvatar))
 

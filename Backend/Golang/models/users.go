@@ -7,7 +7,7 @@ type Users struct {
 	Name             string    `json:"name"  gorm:"type:varchar(255)"`
 	Email            string    `json:"email" gorm:"type:varchar(255)"`
 	Diamond          int       `json:"diamond" gorm:"type:int"`
-	Avatar           string    `json:"avatar" gorm:"type:varchar(255)"`
+	Avatar           int       `json:"avatar" gorm:"type:int"`
 	PurchasedAvatars []Avatars `json:"purchasedavatars" gorm:"many2many:user_avatars"`
 	CreatedAt        time.Time `json:"-"`
 	UpdatedAt        time.Time `json:"-"`
