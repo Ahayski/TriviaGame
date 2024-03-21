@@ -8,7 +8,7 @@ import (
 )
 
 func RunMigrations() {
-	err := database.DB.AutoMigrate(&models.Users{}, &models.Avatars{})
+	err := database.DB.AutoMigrate(&models.Users{}, &models.Avatars{}, models.Transaction{})
 
 	if err != nil {
 		panic(err)

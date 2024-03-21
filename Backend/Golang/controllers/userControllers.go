@@ -55,7 +55,8 @@ func UserGetOne(c *fiber.Ctx) error {
 	}
 
 	for _, avatar := range user.PurchasedAvatars {
-		if strconv.FormatInt(avatar.ID, 10) == user.Avatar {
+		avatarIDString := strconv.FormatInt(avatar.ID, 10)
+		if avatarIDString == strconv.Itoa(user.Avatar) {
 			avatarData := map[string]interface{}{
 				"id":          avatar.ID,
 				"avatarImage": avatar.AvatarImage,
@@ -86,6 +87,7 @@ func SignUp(c *fiber.Ctx) error {
 		claims["name"] = user.Name
 		claims["email"] = user.Email
 		claims["diamond"] = user.Diamond
+		claims["avatar"] = user.Avatar
 
 		token, errGenerateToken := jwtToken.GenerateToken(&claims)
 		if errGenerateToken != nil {
@@ -97,7 +99,7 @@ func SignUp(c *fiber.Ctx) error {
 		}
 
 		return c.Status(fiber.StatusOK).JSON(&fiber.Map{
-			"message": "success sign in",
+			"message": "success log in",
 			"data":    user,
 			"token":   token,
 		})
@@ -115,6 +117,7 @@ func SignUp(c *fiber.Ctx) error {
 	user = models.Users{
 		Name:    request.Name,
 		Email:   request.Email,
+		Avatar:  request.Avatar,
 		Diamond: 0,
 	}
 
@@ -132,6 +135,7 @@ func SignUp(c *fiber.Ctx) error {
 	claims["name"] = user.Name
 	claims["email"] = user.Email
 	claims["diamond"] = user.Diamond
+	claims["avatar"] = user.Avatar
 
 	token, errGenerateToken := jwtToken.GenerateToken(&claims)
 	if errGenerateToken != nil {
@@ -149,56 +153,6 @@ func SignUp(c *fiber.Ctx) error {
 	})
 }
 
-func Login(c *fiber.Ctx) error {
-	request := new(dto.LoginRequest)
-	if err := c.BodyParser(request); err != nil {
-		return err
-	}
-
-	//validasi
-	validate := validator.New()
-	errvalidate := validate.Struct(request)
-	if errvalidate != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
-			"message": "failed",
-			"error":   errvalidate.Error(),
-		})
-		// return errvalidate
-	}
-
-	user := models.Users{
-		Email: request.Email,
-	}
-	err := database.DB.First(&user, "email = ?", request.Email).Error
-	if err != nil {
-		c.Status(fiber.StatusNotFound).JSON(&fiber.Map{
-			"message": "user not found",
-		})
-		return err
-	}
-
-	claims := jwt.MapClaims{}
-	claims["id"] = user.ID
-	claims["name"] = user.Name
-	claims["email"] = user.Email
-	claims["diamond"] = user.Diamond
-
-	token, errGenerateToken := jwtToken.GenerateToken(&claims)
-	if errGenerateToken != nil {
-		log.Println(errGenerateToken)
-		fmt.Println("Unauthorize")
-		return c.Status(fiber.StatusUnauthorized).JSON(&fiber.Map{
-			"message": "Unauthorize",
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
-		"message": "success login",
-		"token":   token,
-	})
-
-}
-
 func UpdateUser(c *fiber.Ctx) error {
 	var user models.Users
 
@@ -212,46 +166,55 @@ func UpdateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	purchasedAvatars := user.PurchasedAvatars
-	if len(purchasedAvatars) == 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
-			"message": "User has not purchased any avatars",
-		})
-	}
-
 	name := c.FormValue("name")
-	diamond := c.FormValue("diamond")
-	avatarId := c.FormValue("avatarId")
-
-	var selectedAvatar models.Avatars
-	var avatarFound bool
-	for _, avatar := range purchasedAvatars {
-		if strconv.FormatInt(avatar.ID, 10) == avatarId {
-			selectedAvatar = avatar
-			avatarFound = true
-			break
-		}
-	}
-	if !avatarFound {
-		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
-			"message": "Selected avatar not found among purchased avatars",
-		})
-	}
+	avatar := c.FormValue("avatarId")
 
 	if name != "" {
 		user.Name = name
 	}
 
-	if diamond != "" {
-		diamondValue, err := strconv.Atoi(diamond)
+	var selectedAvatar models.Avatars
+	var found bool
+	for _, av := range user.PurchasedAvatars {
+		if strconv.Itoa(int(av.ID)) == avatar {
+			selectedAvatar = av
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		avatarID, err := strconv.Atoi(avatar)
 		if err != nil {
 			return err
 		}
-		user.Diamond = diamondValue
+
+		var avatar models.Avatars
+		if err := database.DB.First(&avatar, "id = ?", avatarID).Error; err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+				"message": "Avatar not found",
+			})
+		}
+
+		if avatar.Price == 0 {
+			user.PurchasedAvatars = append(user.PurchasedAvatars, avatar)
+			selectedAvatar = avatar
+		} else {
+			return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+				"message": "You cannot select a paid avatar that you have not purchased.",
+			})
+		}
 	}
 
-	if avatarId != "" {
-		user.Avatar = avatarId
+	if avatar != "" {
+		avatarIdInt, err := strconv.Atoi(avatar)
+		if err != nil {
+			// Handle the error if the conversion fails
+			return err
+		}
+		if avatarIdInt != 0 {
+			user.Avatar = int(selectedAvatar.ID)
+		}
 	}
 
 	if err := database.DB.Save(&user).Error; err != nil {
@@ -259,16 +222,6 @@ func UpdateUser(c *fiber.Ctx) error {
 			"message": "Failed to update user",
 		})
 	}
-
-	token, err := jwtToken.GenerateToken(userInfo)
-	if err != nil {
-		log.Println(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
-			"message": "Failed to generate token",
-		})
-	}
-
-	fmt.Println("Token:", token)
 
 	responseData := map[string]interface{}{
 		"id":      user.ID,
@@ -279,7 +232,6 @@ func UpdateUser(c *fiber.Ctx) error {
 			"id":          selectedAvatar.ID,
 			"avatarImage": selectedAvatar.AvatarImage,
 		},
-		"purchasedavatars": purchasedAvatars,
 	}
 
 	return c.JSON(&fiber.Map{

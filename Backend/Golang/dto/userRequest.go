@@ -4,6 +4,7 @@ type CreateUserRequest struct {
 	Name    string `json:"name" form:"name"`
 	Email   string `json:"email" form:"email" validate:"required"`
 	Diamond string `json:"diamond" form:"diamond"`
+	Avatar  int    `json:"avatar" form:"avatar"`
 }
 
 type UpdateUserReques struct {
