@@ -17,7 +17,7 @@ export const Quiz = () => {
       <div>
         <h1 className="mb-2 ml-4 text-gray-800 text-bold">Quiz</h1>
         <Link to={"/addQuiz"}>
-          <button className="btn btn-primary ml-4">
+          <button className="btn btn-primary ml-4 mb-3">
             <i
               className="fas fa-plus-square abs"
               style={{ paddingRight: "6px" }}
@@ -36,28 +36,57 @@ export const Quiz = () => {
             </tr>
           </thead>
           <tbody>
-            {dataQuiz.map((quiz, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{quiz.question}</td>
-                <td>{quiz.answer}</td>
-                <td>
-                  <ol>
-                    {quiz.options.map((option: any) => (
-                      <li key={option}>{option}</li>
-                    ))}
-                  </ol>
-                </td>
-                <td>
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => hendelDeleteQuiz(quiz.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {dataQuiz.length ? (
+              <>
+                {dataQuiz.map((quiz, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td width={"40%"}>{quiz.question}</td>
+                    <td>{quiz.answer}</td>
+                    <td>
+                      <ol>
+                        {quiz.options.map((option: any) => (
+                          <li key={option}>{option}</li>
+                        ))}
+                      </ol>
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => hendelDeleteQuiz(quiz.id)}
+                      >
+                        Delete
+                      </button>
+                      <button
+                        className="btn btn-warning ml-3 color-white"
+                        onClick={() => naviget(`/editQuiz/${quiz.id}`)}
+                      >
+                        <span className="color-white"> Edit Quiz</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </>
+            ) : (
+              <div
+                className="d-flex justify-content-center align-items-center "
+                style={{
+                  width: "100%",
+                  position: "fixed",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%,-50%)",
+                }}
+              >
+                <div
+                  className="spinner-border"
+                  style={{ width: "5rem", height: "5rem" }}
+                  role="status"
+                >
+                  <span className="sr-only ">Loading...</span>
+                </div>
+              </div>
+            )}
           </tbody>
         </table>
       </div>

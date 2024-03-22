@@ -90,15 +90,26 @@ const MenuSidebar = () => {
     <aside className={`main-sidebar elevation-4 ${sidebarSkin}`}>
       <Link to="/" className="brand-link">
         <div className="brand-image">
-          <StyledBrandImage
-            src="../../../asset/logo.png"
+          {/* <StyledBrandImage
+            src="/img/wakanda.png"
             alt=" Logo"
-            width={30}
-            height={30}
+            width={70}
+            height={70}
             rounded
+          /> */}
+          <img
+            src="/img/wakanda.png"
+            alt="logo"
+            className="rounded mb-3"
+            style={{ width: 100, height: 80, marginTop: "-22px" }}
           />
         </div>
-        <span className="brand-text font-weight-light">KuisWakanda</span>
+        <span
+          className="brand-text font-weight-light "
+          style={{ marginLeft: "-20px" }}
+        >
+          KuisWakanda
+        </span>
       </Link>
       <div className="sidebar">
         <div className="user-panel mt-3 pb-3 mb-3 d-flex">

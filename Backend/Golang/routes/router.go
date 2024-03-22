@@ -2,7 +2,9 @@ package routes
 
 import (
 	"github.com/Ahayski/TriviaGame/controllers"
+	"github.com/Ahayski/TriviaGame/database"
 	"github.com/Ahayski/TriviaGame/pkg/middleware"
+	"github.com/Ahayski/TriviaGame/repositories"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -10,6 +12,7 @@ func SetupRoutes(app *fiber.App) {
 	//avatar
 	app.Get("/api/avatars", controllers.AvatarGetAll)
 	app.Get("/api/avatar/:id", controllers.AvatarGetOne)
+	app.Get("/api/avatars_zero", controllers.AvatarDiamondZero)
 
 	//quizzes
 	app.Get("/api/quizzes", controllers.QuizzesGetAll)
@@ -31,4 +34,11 @@ func SetupRoutes(app *fiber.App) {
 	//diamond
 	app.Get("/api/diamonds", controllers.DiamondGetAll)
 	app.Get("/api/diamond/:id", controllers.DiamondGetOne)
+	app.Post("/api/buyDiamond", middleware.Auth(controllers.BuyDiamond))
+
+	//transactions
+	transactionRepository := repositories.RepositoryTransaction(database.DB)
+	h := controllers.HandleTransaction(transactionRepository)
+	app.Post("/notification", h.Notification)
+
 }

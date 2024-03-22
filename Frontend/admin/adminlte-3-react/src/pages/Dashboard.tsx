@@ -1,6 +1,35 @@
-import { ContentHeader } from '@components';
+import { useAvatar } from "@app/hooks/Avatar/useAvatar";
+import { useQuiz } from "@app/hooks/Quiz/useQuiz";
+import { useDiamon } from "@app/hooks/diamon/useDiamon";
+import { API_Golang } from "@app/lib/axios";
+import { RootType } from "@app/types/storeType";
+import { ContentHeader } from "@components";
+import { useEffect } from "react";
+
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
+  const avatar = useSelector((state: RootType) => state.avatar.data.data);
+  const diamon = useSelector((state: RootType) => state.diamon.data.data);
+  const quiz = useSelector((state: RootType) => state.quiz.data.data);
+  const { handleGetAvatars } = useAvatar();
+  const { hendelGetDiamon } = useDiamon();
+  const { hendelGetQuiz } = useQuiz();
+  const GetAvatar = async () => {
+    try {
+      const response = await API_Golang.get("/avatars");
+      console.log("HALLO", response);
+    } catch (error) {
+      console.log("TES", error);
+    }
+  };
+
+  useEffect(() => {
+    GetAvatar();
+    handleGetAvatars();
+    hendelGetDiamon();
+    hendelGetQuiz();
+  }, []);
   return (
     <div>
       <ContentHeader title="Dashboard" />
@@ -11,14 +40,22 @@ const Dashboard = () => {
             <div className="col-lg-3 col-6">
               <div className="small-box bg-info">
                 <div className="inner">
-                  <h3>150</h3>
+                  <h3>
+                    {avatar.length ? (
+                      avatar.length
+                    ) : (
+                      <div className="spinner-border" role="status">
+                        <span className="sr-only">Loading...</span>
+                      </div>
+                    )}
+                  </h3>
 
-                  <p>New Orders</p>
+                  <p>Avatar</p>
                 </div>
                 <div className="icon">
                   <i className="ion ion-bag" />
                 </div>
-                <a href="/" className="small-box-footer">
+                <a href="/avatar" className="small-box-footer">
                   More info <i className="fas fa-arrow-circle-right" />
                 </a>
               </div>
@@ -27,15 +64,21 @@ const Dashboard = () => {
               <div className="small-box bg-success">
                 <div className="inner">
                   <h3>
-                    53<sup style={{ fontSize: '20px' }}>%</sup>
+                    {diamon.length ? (
+                      diamon.length
+                    ) : (
+                      <div className="spinner-border" role="status">
+                        <span className="sr-only">Loading...</span>
+                      </div>
+                    )}
                   </h3>
 
-                  <p>Bounce Rate</p>
+                  <p>Diamon</p>
                 </div>
                 <div className="icon">
                   <i className="ion ion-stats-bars" />
                 </div>
-                <a href="/" className="small-box-footer">
+                <a href="/diamon" className="small-box-footer">
                   More info <i className="fas fa-arrow-circle-right" />
                 </a>
               </div>
@@ -45,7 +88,7 @@ const Dashboard = () => {
                 <div className="inner">
                   <h3>44</h3>
 
-                  <p>User Registrations</p>
+                  <p>Admin user </p>
                 </div>
                 <div className="icon">
                   <i className="ion ion-person-add" />
@@ -58,14 +101,20 @@ const Dashboard = () => {
             <div className="col-lg-3 col-6">
               <div className="small-box bg-danger">
                 <div className="inner">
-                  <h3>65</h3>
+                  {quiz.length ? (
+                    <h3>{quiz.length}</h3>
+                  ) : (
+                    <div className="spinner-border" role="status">
+                      <span className="sr-only">Loading...</span>
+                    </div>
+                  )}
 
-                  <p>Unique Visitors</p>
+                  <p>Kuis Wakanda</p>
                 </div>
                 <div className="icon">
                   <i className="ion ion-pie-graph" />
                 </div>
-                <a href="/" className="small-box-footer">
+                <a href="/quiz" className="small-box-footer">
                   More info <i className="fas fa-arrow-circle-right" />
                 </a>
               </div>

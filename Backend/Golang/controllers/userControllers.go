@@ -3,15 +3,22 @@ package controllers
 import (
 	"fmt"
 	"log"
+	"net/http"
+	"os"
+
 	"strconv"
+	"time"
 
 	"github.com/Ahayski/TriviaGame/database"
 	"github.com/Ahayski/TriviaGame/dto"
 	"github.com/Ahayski/TriviaGame/models"
 	jwtToken "github.com/Ahayski/TriviaGame/pkg/jwt"
+	fp "github.com/amonsat/fullname_parser"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/midtrans/midtrans-go"
+	"github.com/midtrans/midtrans-go/snap"
 )
 
 func UserGetAll(c *fiber.Ctx) error {
@@ -238,4 +245,69 @@ func UpdateUser(c *fiber.Ctx) error {
 		"message": "User updated successfully",
 		"data":    responseData,
 	})
+}
+
+func BuyDiamond(c *fiber.Ctx) error {
+	var s snap.Client
+	s.New(os.Getenv("MIDTRANS_SERVER_KEY"), midtrans.Sandbox)
+
+	// s.New("SB-Mid-server-cLMUNyH2qGSidhoGBIJazXvL", midtrans.Sandbox)
+
+	request := new(dto.MidtransRequest)
+
+	if err := c.BodyParser(request); err != nil {
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		return c.JSON(response)
+	}
+
+	validation := validator.New()
+	err := validation.Struct(request)
+	if err != nil {
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		return c.JSON(response)
+	}
+
+	userInfo := c.Locals("userInfo").(jwt.MapClaims)
+	fmt.Println(userInfo["id"])
+
+	// Konversi ke int64
+	userIdFloat := userInfo["id"].(float64)
+	userId := int64(userIdFloat)
+	uName := userInfo["name"].(string)
+	email := userInfo["email"].(string)
+
+	parsedName := fp.ParseFullname(uName)
+	firstName := parsedName.First
+	lastName := parsedName.Last
+
+	req := &snap.Request{
+		TransactionDetails: midtrans.TransactionDetails{
+			OrderID:  strconv.FormatInt(userId, 10) + "-" + time.Now().Format("240321154530"),
+			GrossAmt: request.Amount,
+		},
+		CreditCard: &snap.CreditCardDetails{
+			Secure: true,
+		},
+		CustomerDetail: &midtrans.CustomerDetails{
+			FName: firstName,
+			LName: lastName,
+			Email: email,
+		},
+		EnabledPayments: snap.AllSnapPaymentType,
+	}
+
+	resp, _ := s.CreateTransaction(req)
+	// if err != nil {
+	// 	response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+	// 	return c.JSON(response)
+	// }
+
+	midtransResponse := dto.MidtransResponse{
+		Token: resp.Token,
+		Url:   resp.RedirectURL,
+	}
+
+	response := dto.SuccessResult{Code: http.StatusOK, Data: midtransResponse}
+	return c.JSON(response)
+
 }
