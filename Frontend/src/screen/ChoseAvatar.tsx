@@ -26,9 +26,14 @@ import { ButtonText } from "@gluestack-ui/themed";
 import { Link } from "@gluestack-ui/themed";
 import { LayoutBg } from "../Layout/LayoutBg";
 import { ImageLogo } from "../components/Image";
-import { useDispatch } from 'react-redux';
+import { useDispatch } from "react-redux";
 import { useUser } from "@clerk/clerk-expo";
-import { SET_EMAIL, SET_AVATAR, SET_USERNAME } from "../store/slices/userSlices";
+import {
+  SET_EMAIL,
+  SET_AVATAR,
+  SET_USERNAME,
+} from "../store/slices/userSlices";
+import { APIGO } from "../utils/axios";
 
 export const ChoseAvatar = ({ navigation }: any) => {
   const [hoveredItemId, setHoveredItemId] = useState(null);
@@ -41,9 +46,20 @@ export const ChoseAvatar = ({ navigation }: any) => {
   };
 
   useEffect(() => {
+    // GetAvatarFre();
+    const GetAvatarFre = async () => {
+      try {
+        const response = await APIGO.get("/avatars_zero");
+        console.log("hallo", response.data); // Assuming you want to log the response
+      } catch (error) {
+        console.error("tes", error);
+      }
+    };
+    GetAvatarFre();
+    console.log("Komponen App dimuat");
     if (isLoaded && isSignedIn) {
-      const email = user.emailAddresses[0].emailAddress
-      dispatch(SET_EMAIL(email))
+      const email = user.emailAddresses[0].emailAddress;
+      dispatch(SET_EMAIL(email));
     }
   }, [isLoaded, isSignedIn]);
 

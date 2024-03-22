@@ -65,7 +65,6 @@ const Root = (props: Props) => {
           component={Champion}
           options={{ headerShown: false }}
         />
-
       </Stack.Navigator>
     </NavigationContainer>
   );

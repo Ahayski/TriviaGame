@@ -12,6 +12,7 @@ func SetupRoutes(app *fiber.App) {
 	//avatar
 	app.Get("/api/avatars", controllers.AvatarGetAll)
 	app.Get("/api/avatar/:id", controllers.AvatarGetOne)
+	app.Get("/api/avatars_zero", controllers.AvatarDiamondZero)
 
 	//quizzes
 	app.Get("/api/quizzes", controllers.QuizzesGetAll)

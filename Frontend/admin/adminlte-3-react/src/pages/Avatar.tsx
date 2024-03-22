@@ -1,22 +1,37 @@
 import React, { useState, useEffect } from "react";
-import { API } from "../lib/axios";
+import { API, API_Golang } from "../lib/axios";
 import { error } from "console";
 import { useAvatar } from "@app/hooks/Avatar/useAvatar";
 import { useSelector } from "react-redux";
 import { RootType } from "@app/types/storeType";
+import axios from "axios";
 
 export const Avatar = () => {
   // Define state to store the avatars
   const dataAvatar = useSelector((state: RootType) => state.avatar.data.data);
   console.log("data", dataAvatar);
   const { handleGetAvatars, hendelDeleteAvatar } = useAvatar();
+  const [avatarData, setAvatarData] = useState([]);
+  // const GetAvatar = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       "https://db8d-118-99-107-173.ngrok-free.app/api/avatars"
+  //     );
+  //     console.log("res", response);
+  //     setAvatarData(response.data.data);
 
-  // Function to fetch avatars from the API
-
-  // Fetch avatars on component mount
+  //     const dataBro = JSON.stringify(response.data);
+  //     console.log(dataBro);
+  //     // Jika respons adalah data JSON yang diharapkan, set data avatar
+  //   } catch (error) {
+  //     console.log("Terjadi kesalahan:", error);
+  //   }
+  // };
+  // console.log("avatarGO", avatarData);
   useEffect(() => {
+    // GetAvatar();
     handleGetAvatars();
-  }, [dataAvatar]);
+  }, []);
 
   return (
     <div>

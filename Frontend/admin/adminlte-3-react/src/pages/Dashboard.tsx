@@ -1,6 +1,7 @@
 import { useAvatar } from "@app/hooks/Avatar/useAvatar";
 import { useQuiz } from "@app/hooks/Quiz/useQuiz";
 import { useDiamon } from "@app/hooks/diamon/useDiamon";
+import { API_Golang } from "@app/lib/axios";
 import { RootType } from "@app/types/storeType";
 import { ContentHeader } from "@components";
 import { useEffect } from "react";
@@ -14,8 +15,17 @@ const Dashboard = () => {
   const { handleGetAvatars } = useAvatar();
   const { hendelGetDiamon } = useDiamon();
   const { hendelGetQuiz } = useQuiz();
+  const GetAvatar = async () => {
+    try {
+      const response = await API_Golang.get("/avatars");
+      console.log("HALLO", response);
+    } catch (error) {
+      console.log("TES", error);
+    }
+  };
 
   useEffect(() => {
+    GetAvatar();
     handleGetAvatars();
     hendelGetDiamon();
     hendelGetQuiz();

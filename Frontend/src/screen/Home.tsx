@@ -17,26 +17,25 @@ import { TouchableOpacity, View } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { ImageLogo } from "../components/Image";
 import { LayoutBg } from "../Layout/LayoutBg";
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/types/rootTypes";
-import { ToastAndroid } from 'react-native';
+import { ToastAndroid } from "react-native";
 import { SET_SIZE } from "../store/slices/sizeRoomSlices";
 import { SET_USERS_ROOM } from "../store/slices/usersInRoomSlices";
 import socket from "../utils/socket";
 
-
 export const Home = ({ navigation }: any) => {
-  const user = useSelector((state: RootState) => state.user.data)
+  const user = useSelector((state: RootState) => state.user.data);
   const roomSize = useSelector((state: RootState) => state.sizeRoom.size);
-  const usersInRoom = useSelector((state: RootState) => state.usersInRoom.data)
+  const usersInRoom = useSelector((state: RootState) => state.usersInRoom.data);
   const dispatch = useDispatch();
-  console.log("roomSize", roomSize)
+  console.log("roomSize", roomSize);
 
   async function startGame() {
     try {
-      navigation.navigate("MatchPage")
+      navigation.navigate("MatchPage");
     } catch (error) {
-      alert("Network error")
+      alert("Network error");
     }
   }
 
@@ -103,7 +102,11 @@ export const Home = ({ navigation }: any) => {
           >
             <AvatarImage
               alt="avatar"
-              source={user.avatar ? user.avatar : require("../../assets/avatar/avatar3.jpg")}
+              source={
+                user.avatar
+                  ? user.avatar
+                  : require("../../assets/avatar/avatar3.jpg")
+              }
             />
           </Avatar>
 
