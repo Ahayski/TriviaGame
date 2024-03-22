@@ -10,6 +10,22 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+func AvatarDiamondZero(c *fiber.Ctx) error {
+    var avatar []models.Avatars
+
+    // Mengambil semua avatar dengan nilai diamond 0 dari database
+    err := database.DB.Where("price = ?", 0).Find(&avatar).Error
+    if err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+            "message": "could not get avatars with diamond value 0",
+        })
+    }
+
+    return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+        "message": "success get avatars with diamond value 0",
+        "data":    avatar,
+    })
+}
 func AvatarGetAll(c *fiber.Ctx) error {
 	var avatar []models.Avatars            // Inisialisasi sebagai slice Avatars
 	err := database.DB.Find(&avatar).Error // Perhatikan penggunaan & untuk referensi slice avatar
@@ -104,3 +120,4 @@ func BuyAvatar(c *fiber.Ctx) error {
 	})
 
 }
+
