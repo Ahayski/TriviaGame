@@ -7,3 +7,8 @@ export interface IUsersInRoom {
     username: string,
     avatar: string
 }
+
+export interface IWaitingTime {
+    timerWaiting: number,
+    timerGame: number
+}

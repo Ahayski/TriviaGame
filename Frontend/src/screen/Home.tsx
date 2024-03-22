@@ -33,7 +33,13 @@ export const Home = ({ navigation }: any) => {
 
   async function startGame() {
     try {
-      navigation.navigate("MatchPage");
+
+      socket.emit('joinRoom', {
+        username: user.username,
+        avatar: user.avatar
+      });
+      socket.on('matching', (data) => { })
+      navigation.navigate("MatchPage")
     } catch (error) {
       alert("Network error");
     }
@@ -151,3 +157,8 @@ export const Home = ({ navigation }: any) => {
     </View>
   );
 };
+
+// Daftar perubahan :
+// 1. Di folder components aku tambahin file "TimerWaitingRoom.tsx"
+// 2. DI store aku tambahin redux terbaru (timerSlices dll)
+// 3. Di matchpage bagian hooksnya (di dalam )
