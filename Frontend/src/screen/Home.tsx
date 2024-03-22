@@ -34,6 +34,11 @@ export const Home = ({ navigation }: any) => {
 
   async function startGame() {
     try {
+      socket.emit('joinRoom', {
+        username: user.username,
+        avatar: user.avatar
+      });
+      socket.on('matching', (data) => { })
       navigation.navigate("MatchPage")
     } catch (error) {
       alert("Network error")

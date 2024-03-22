@@ -1,6 +1,6 @@
 import { Center, Text } from "@gluestack-ui/themed";
 import { Box, AvatarImage } from "@gluestack-ui/themed";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { LayoutBg } from "../Layout/LayoutBg";
@@ -10,6 +10,7 @@ import { Progress } from "@gluestack-ui/themed";
 import { ProgressFilledTrack } from "@gluestack-ui/themed";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from "../store/types/rootTypes";
+import socket from "../utils/socket";
 
 export const GamePage = ({ navigation }: any) => {
     const user = useSelector((state: RootState) => state.user.data)
@@ -18,7 +19,8 @@ export const GamePage = ({ navigation }: any) => {
     const [selectedOption, setSelectedOption] = useState(null); // Menambahkan state untuk menyimpan jawaban yang dipilih
     const Questions = QuisJson[questionIndex];
     const QuestLength = QuisJson.length;
-    const [questionLength, setQuestionLength] = useState<number>(1)
+    const [questionLength, setQuestionLength] = useState<number>()
+    const [timer, setTimer] = useState<number>(5)
 
     const hendelAnswer = (question: string, index: any) => {
         setSelectedOption(index); // Menyimpan jawaban yang dipilih
@@ -33,13 +35,31 @@ export const GamePage = ({ navigation }: any) => {
     const handleNextQuestion = () => {
         setSelectedOption(null); // Reset pilihan jawaban
         setAnswered(false);
-        setQuestionLength(prevLength => prevLength + 1);
+        console.log("questionLength", questionLength)
         if (questionLength == QuestLength) {
             navigation.navigate("Champion");
         } else {
             setQuestionIndex((prevIndex) => prevIndex + 1);
         }
     };
+
+    socket.on("counter", (data) => {
+        setQuestionLength(data)
+    })
+
+    useEffect(() => {
+        socket.on('timer', (data) => {
+            setTimer(data)
+        });
+    }, []);
+
+    useEffect(() => {
+        if (timer === 0) {
+            setTimeout(() => {
+                handleNextQuestion()
+            }, 3000);
+        }
+    }, [timer]);
 
     return (
         <View style={{ width: "100%", height: "100%", minHeight: "100%" }}>
@@ -75,7 +95,7 @@ export const GamePage = ({ navigation }: any) => {
                                 fontSize={"$3xl"}
                                 fontWeight="bold"
                             >
-                                00:30
+                                00:{timer}
                             </Text>
                         </Box>
 
@@ -174,13 +194,13 @@ export const GamePage = ({ navigation }: any) => {
                                 </TouchableOpacity>
                             ))}
 
-                            {answered && (
+                            {/* {answered && (
                                 <TouchableOpacity onPress={handleNextQuestion}>
                                     <Text color="white" mt={20}>
                                         Next Question
                                     </Text>
                                 </TouchableOpacity>
-                            )}
+                            )} */}
                         </Box>
                         <Box w={"100%"} h={20} position="absolute" bottom={0} ml={10}>
                             <Progress value={40} bgColor="white" w={"95%"} size="lg">
