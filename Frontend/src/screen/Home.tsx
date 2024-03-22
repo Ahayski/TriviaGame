@@ -153,3 +153,8 @@ export const Home = ({ navigation }: any) => {
     </View>
   );
 };
+
+// Daftar perubahan :
+// 1. Di folder components aku tambahin file "TimerWaitingRoom.tsx"
+// 2. DI store aku tambahin redux terbaru (timerSlices dll)
+// 3. Di matchpage bagian hooksnya (di dalam )
