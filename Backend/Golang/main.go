@@ -11,6 +11,7 @@ import (
 	// "github.com/Ahayski/TriviaGame/migrate"
 	"github.com/Ahayski/TriviaGame/routes"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
@@ -26,6 +27,13 @@ func main() {
 
 	// Setup routes
 	routes.SetupRoutes(app)
+
+	//cors
+	app.Use(cors.New(cors.Config{
+		AllowMethods: "GET,POST,PATCH,DELETE",
+		AllowOrigins: "*",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 
 	err := app.Listen(":9000")
 	if err != nil {
