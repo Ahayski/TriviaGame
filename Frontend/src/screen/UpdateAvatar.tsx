@@ -7,19 +7,30 @@ import {
   View,
 } from "@gluestack-ui/themed";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SET_AVATAR } from "../store/slices/userSlices";
-import { useDispatch } from 'react-redux';
+import { useDispatch } from "react-redux";
 import { AvatarDiamon, avatarReguler } from "../json/Avatar";
 import { LayoutBg } from "../Layout/LayoutBg";
 import { CradAvatar } from "../components/CradAvatar";
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, ScrollViewBase, TouchableOpacity } from "react-native";
 import { ButtonComponen } from "../components/ButtonComponen";
+import { ApiRockGo } from "../utils/axios";
+import { AvatarData } from "../interfaces/Avatar";
+import { UseAvatar } from "../hooks/Avatar/UseAvatar";
 
 export const UpdateAvatar = ({ navigation }: any) => {
+  const { hendelGetAvatar, avatarFre, avatarDiamon, UpdateAvatar } =
+    UseAvatar();
+  const [hoveredItemId, setHoveredItemId] = useState(null);
+  const [selectedAvatarId, setSelectedAvatarId] = useState<any>(undefined);
+
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    hendelGetAvatar();
+  }, []);
   return (
     <LayoutBg>
       <View
@@ -56,29 +67,44 @@ export const UpdateAvatar = ({ navigation }: any) => {
             alignContent="center"
           >
             <HStack space={"sm"} mx={"auto"}>
-              {avatarReguler.slice(0, 3).map((item) => (
-                <CradAvatar
-                  id={item.id}
-                  key={item.id}
-                  avatar={item.avatar}
-                  type={item.type}
-                />
+              {avatarFre.slice(0, 3).map((item: AvatarData) => (
+                <>
+                  <TouchableOpacity
+                    key={item.id}
+                    onPress={() => {
+                      // UpdateAvatar(item.id);
+                      setSelectedAvatarId(item.id);
+                      dispatch(SET_AVATAR(item.avatarImage));
+                    }}
+                  >
+                    <CradAvatar
+                      id={item.id}
+                      key={item.id}
+                      avatarImage={item.avatarImage}
+                      price={item.price}
+                    />
+                  </TouchableOpacity>
+                </>
               ))}
             </HStack>
 
             <HStack space={"sm"} mx={"auto"}>
-              {AvatarDiamon.slice(0, 3).map((item) => (
+              {avatarDiamon.slice(12, 15).map((item: AvatarData) => (
                 <CradAvatar
                   key={item.id}
-                  avatar={item.avatar}
-                  type={item.type}
-                  harga={item.harga}
-                  Diamon={item.Diamon}
+                  avatarImage={item.avatarImage}
+                  purchase={item.purchase}
+                  price={item.price}
                 />
               ))}
             </HStack>
           </Box>
-          <ButtonComponen nameOne="Cancel" nameTwo="Save" />
+          <ButtonComponen
+            nameOne="Cancel"
+            nameTwo="Save"
+            onPressSave={() => {}}
+            onPressCancel={() => navigation.navigate("Home")}
+          />
         </ScrollView>
       </View>
     </LayoutBg>
