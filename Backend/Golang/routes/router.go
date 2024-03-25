@@ -25,7 +25,8 @@ func SetupRoutes(app *fiber.App) {
 	// app.Post("/api/user/login", controllers.Login)
 	// app.Patch("/api/updateAvatar", middleware.Auth(controllers.UpdateAvatar))
 	app.Patch("/api/user", middleware.Auth(controllers.UpdateUser))
-	app.Patch("/api/buyAvatar", middleware.Auth(controllers.BuyAvatar))
+	// app.Patch("/api/buyAvatar", middleware.Auth(controllers.BuyAvatar))
+	app.Patch("/api/buyAvatar", controllers.BuyAvatar)
 
 	//user&avatar
 	app.Get("/api/avatar-user", controllers.AvatarUserFind)
@@ -34,7 +35,8 @@ func SetupRoutes(app *fiber.App) {
 	//diamond
 	app.Get("/api/diamonds", controllers.DiamondGetAll)
 	app.Get("/api/diamond/:id", controllers.DiamondGetOne)
-	app.Post("/api/buyDiamond", middleware.Auth(controllers.BuyDiamond))
+	// app.Post("/api/buyDiamond", middleware.Auth(controllers.BuyDiamond))
+	app.Post("/api/buyDiamond", controllers.BuyDiamond)
 
 	//transactions
 	transactionRepository := repositories.RepositoryTransaction(database.DB)

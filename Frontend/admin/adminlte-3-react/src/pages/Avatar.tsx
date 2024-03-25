@@ -11,23 +11,10 @@ export const Avatar = () => {
   const dataAvatar = useSelector((state: RootType) => state.avatar.data.data);
   console.log("data", dataAvatar);
   const { handleGetAvatars, hendelDeleteAvatar } = useAvatar();
-  const [avatarData, setAvatarData] = useState([]);
-  // const GetAvatar = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       "https://db8d-118-99-107-173.ngrok-free.app/api/avatars"
-  //     );
-  //     console.log("res", response);
-  //     setAvatarData(response.data.data);
 
-  //     const dataBro = JSON.stringify(response.data);
-  //     console.log(dataBro);
-  //     // Jika respons adalah data JSON yang diharapkan, set data avatar
-  //   } catch (error) {
-  //     console.log("Terjadi kesalahan:", error);
-  //   }
-  // };
-  // console.log("avatarGO", avatarData);
+  // Function to fetch avatars from the API
+
+  // Fetch avatars on component mount
   useEffect(() => {
     // GetAvatar();
     handleGetAvatars();

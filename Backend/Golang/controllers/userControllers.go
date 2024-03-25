@@ -162,9 +162,11 @@ func SignUp(c *fiber.Ctx) error {
 
 func UpdateUser(c *fiber.Ctx) error {
 	var user models.Users
+	email := c.FormValue("email")
 
-	userInfo := c.Locals("userInfo").(jwt.MapClaims)
-	email := userInfo["email"].(string)
+	//if using jwt
+	// userInfo := c.Locals("userInfo").(jwt.MapClaims)
+	// email := userInfo["email"].(string)
 
 	err := database.DB.Preload("PurchasedAvatars").First(&user, "email = ?", email).Error
 	if err != nil {
@@ -248,6 +250,7 @@ func UpdateUser(c *fiber.Ctx) error {
 }
 
 func BuyDiamond(c *fiber.Ctx) error {
+	var user models.Users
 	var s snap.Client
 	s.New(os.Getenv("MIDTRANS_SERVER_KEY"), midtrans.Sandbox)
 
@@ -267,14 +270,19 @@ func BuyDiamond(c *fiber.Ctx) error {
 		return c.JSON(response)
 	}
 
-	userInfo := c.Locals("userInfo").(jwt.MapClaims)
-	fmt.Println(userInfo["id"])
+	//if using jwt
+	// userInfo := c.Locals("userInfo").(jwt.MapClaims)
+	// fmt.Println(userInfo["id"])
+
+	userInfo := database.DB.First(&user, "email = ? ", request.Email)
+	if userInfo.Error != nil {
+		return err
+	}
 
 	// Konversi ke int64
-	userIdFloat := userInfo["id"].(float64)
-	userId := int64(userIdFloat)
-	uName := userInfo["name"].(string)
-	email := userInfo["email"].(string)
+	userId := user.ID
+	uName := user.Name
+	email := user.Email
 
 	parsedName := fp.ParseFullname(uName)
 	firstName := parsedName.First
