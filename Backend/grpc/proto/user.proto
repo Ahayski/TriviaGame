@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package user;
+option go_package = "grpc/user";
+
+service UserService{
+    rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+}
+
+message UpdateUserRequest {
+    int64 id = 1;
+    string name = 2;
+    string email = 3;
+    int64 diamond = 4;
+    int64 avatar = 5;
+    // repeated string purchasedAvatars = 6;
+}
+
+message UpdateUserResponse {
+    string data = 1;
+}
