@@ -15,7 +15,7 @@ export function TimerWaitingRoom({ navigation }: any) {
 
     return (
         <Text fontWeight="bold" color="#FFC700" fontSize={"$5xl"}>
-            00:{timer}
+            00:{timer < 10 ? `0${timer}` : timer}
         </Text>
     )
 }
@@ -35,7 +35,7 @@ export function TimerIngameRoom({ navigation }: any) {
             fontSize={"$3xl"}
             fontWeight="bold"
         >
-            00:{timer}
+            00:{timer < 10 ? `0${timer}` : timer}
         </Text>
     )
 }

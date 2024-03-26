@@ -1,63 +1,86 @@
-import { Center, Text } from "@gluestack-ui/themed";
+import { Text } from "@gluestack-ui/themed";
 import { Box, AvatarImage } from "@gluestack-ui/themed";
 import React, { useState, useEffect } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { LayoutBg } from "../Layout/LayoutBg";
 import { HStack } from "@gluestack-ui/themed";
-import { QuisJson } from "../json/Quis";
 import { Progress } from "@gluestack-ui/themed";
 import { ProgressFilledTrack } from "@gluestack-ui/themed";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from "../store/types/rootTypes";
 import socket from "../utils/socket";
+import { SET_QUESTION } from "../store/slices/questionSlices";
+import { TimerIngameRoom } from "../components/TimerWaitingRoom";
+import { SET_SCORE } from "../store/slices/scoreSlices";
+import { SET_INGAME_TIMER } from "../store/slices/timerSlices";
 
 export const GamePage = ({ navigation }: any) => {
     const user = useSelector((state: RootState) => state.user.data)
-    const [questionIndex, setQuestionIndex] = useState(0);
+    const timer = useSelector((state: RootState) => state.timerReducer.timerGame)
     const [answered, setAnswered] = useState(false);
-    const [selectedOption, setSelectedOption] = useState(null); // Menambahkan state untuk menyimpan jawaban yang dipilih
-    const Questions = QuisJson[questionIndex];
-    const QuestLength = QuisJson.length;
-    const [questionLength, setQuestionLength] = useState<number>()
-    const [timer, setTimer] = useState<number>(5)
+    const [selectedOption, setSelectedOption] = useState(7);
+    const [counter, setCounter] = useState<number>()
+    const dispatch = useDispatch()
+    const question = useSelector((state: RootState) => state.question)
+    const [questionLength, setQuestionLength] = useState<number>(5)
+    const [bgRight, setBgRight] = useState("#fff");
+    const [bgFalse, setBgFalse] = useState("#fff");
+    const score = useSelector((state: RootState) => state.score.score)
+    const [answerStatus, setAnswerStatus] = useState(false)
+    const [waitingTime, setWaitingTime] = useState()
 
-    const hendelAnswer = (question: string, index: any) => {
+    const hendelAnswer = (option: string, index: number) => {
         setSelectedOption(index); // Menyimpan jawaban yang dipilih
-        if (question === Questions.answer) {
-            setAnswered(true);
-            console.log("hallo", question);
+        socket.emit("selectedOption",)
+        if (option === question.answer) {
+            setAnswerStatus(true)
         } else {
-            setAnswered(false);
+            setAnswerStatus(false)
         }
     };
 
     const handleNextQuestion = () => {
-        setSelectedOption(null); // Reset pilihan jawaban
-        setAnswered(false);
-        console.log("questionLength", questionLength)
-        if (questionLength == QuestLength) {
+        if (counter!! < questionLength) {
+            setSelectedOption(7) // Reset pilihan jawaban
+            setAnswered(false)
+            setAnswerStatus(false)
+            dispatch(SET_INGAME_TIMER(15))
+        } else if (counter!! == questionLength) {
             navigation.navigate("Champion");
         } else {
-            setQuestionIndex((prevIndex) => prevIndex + 1);
+
         }
     };
 
     socket.on("counter", (data) => {
-        setQuestionLength(data)
+        setCounter(data)
+    })
+    socket.on("question", (data) => {
+        dispatch(SET_QUESTION(data))
+    })
+    socket.on("validateAnswerTime", (data) => {
+        setWaitingTime(data)
     })
 
     useEffect(() => {
-        socket.on('timer', (data) => {
-            setTimer(data)
-        });
-    }, []);
-
-    useEffect(() => {
         if (timer === 0) {
+            setBgRight("#52A6CD")
+            setBgFalse("red")
+            setAnswered(true)
+            if (answerStatus) {
+                dispatch(SET_SCORE(100))
+                let scoreUser = {
+                    username: user.name,
+                    avatar: user.avatar,
+                    score: score
+                }
+                socket.emit("score", scoreUser)
+            }
             setTimeout(() => {
+                console.log(score)
                 handleNextQuestion()
-            }, 3000);
+            }, 3600);
         }
     }, [timer]);
 
@@ -83,20 +106,13 @@ export const GamePage = ({ navigation }: any) => {
                             <HStack>
                                 <FontAwesome name="trophy" size={24} color="#FFC700" />
                                 <Text color="white" ml={5}>
-                                    12300
+                                    {score}
                                 </Text>
                             </HStack>
                         </Box>
 
                         <Box my={20}>
-                            <Text
-                                color="#0ACF83"
-                                textAlign="center"
-                                fontSize={"$3xl"}
-                                fontWeight="bold"
-                            >
-                                00:{timer}
-                            </Text>
+                            <TimerIngameRoom />
                         </Box>
 
                         <Box
@@ -116,10 +132,10 @@ export const GamePage = ({ navigation }: any) => {
                                 alignItems="center"
                             >
                                 <Text textAlign="center" color="white">
-                                    {Questions.questionTitle}
+                                    {question.question}
                                 </Text>
                             </Box>
-                            {Questions.question.map((question: any, index: number) => (
+                            {question.options.map((option: string, index: number) => (
                                 <TouchableOpacity
                                     style={{
                                         width: "100%",
@@ -127,24 +143,24 @@ export const GamePage = ({ navigation }: any) => {
                                         alignItems: "center",
                                     }}
                                     key={index}
-                                    onPress={() => hendelAnswer(question, index)}
+                                    onPress={() => hendelAnswer(option, index)}
                                     disabled={answered}
                                 >
                                     <Box
                                         mt={30}
                                         w={"85%"}
                                         h={40}
-
                                         px={14}
                                         justifyContent="center"
                                         borderRadius={10}
-                                        // bg="#fff"
                                         bg={
-                                            selectedOption === index
-                                                ? Questions.answer === question
-                                                    ? "#fff"
+                                            timer === 0 && selectedOption === index
+                                                ? question.answer === option
+                                                    ? bgRight
+                                                    : bgFalse
+                                                : timer === 0 && question.answer === option
+                                                    ? bgRight
                                                     : "#fff"
-                                                : "#fff"
                                         }
                                     >
                                         <Text
@@ -154,53 +170,24 @@ export const GamePage = ({ navigation }: any) => {
                                             fontWeight="bold"
                                             textAlign="left"
                                         >
-                                            {question}
+                                            {option}
                                         </Text>
 
                                         {selectedOption === index && (
-                                            <Box width={"60%"} height={30} display="flex" gap={35} flexDirection="row" position="absolute" justifyContent="flex-end" right={10}>
+                                            <Box width={"60%"} height={30} display="flex" gap={35} flexDirection="row" position="absolute" justifyContent="flex-end" right={30}>
                                                 <Box>
                                                     <AvatarImage
                                                         alt="avatar"
                                                         width={30}
                                                         height={30}
-                                                        source={require("../../assets/avatar/avatar4.jpg")}
+                                                        source={user.avatar}
                                                     />
-
                                                 </Box>
-                                                <Box >
-                                                    <AvatarImage
-                                                        alt="avatar"
-                                                        width={30}
-                                                        height={30}
-                                                        source={require("../../assets/avatar/avatar4.jpg")}
-                                                    />
-
-                                                </Box>
-                                                <Box mr={20}>
-                                                    <AvatarImage
-                                                        alt="avatar"
-                                                        width={30}
-                                                        height={30}
-                                                        source={require("../../assets/avatar/avatar4.jpg")}
-                                                    />
-
-                                                </Box>
-
                                             </Box>
-
                                         )}
                                     </Box>
                                 </TouchableOpacity>
                             ))}
-
-                            {/* {answered && (
-                                <TouchableOpacity onPress={handleNextQuestion}>
-                                    <Text color="white" mt={20}>
-                                        Next Question
-                                    </Text>
-                                </TouchableOpacity>
-                            )} */}
                         </Box>
                         <Box w={"100%"} h={20} position="absolute" bottom={0} ml={10}>
                             <Progress value={40} bgColor="white" w={"95%"} size="lg">
@@ -212,4 +199,4 @@ export const GamePage = ({ navigation }: any) => {
             </LayoutBg>
         </View >
     );
-};
+}
