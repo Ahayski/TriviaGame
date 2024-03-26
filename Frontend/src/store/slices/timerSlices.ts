@@ -3,7 +3,7 @@ import { IWaitingTime } from "../../interfaces/WaitingRoomInterface";
 
 const initialTime: IWaitingTime = {
     timerWaiting: 10,
-    timerGame: 0,
+    timerGame: 15,
 }
 
 export const waitingSlice = createSlice({

@@ -1,4 +1,4 @@
-import { io, users } from "..";
+import { io, waitingRoomOne } from "..";
 import { getQuiz } from "./getQuiz";
 import { IQuiz } from "./types";
 
@@ -15,8 +15,9 @@ function shuffle() {
     .map(({ val }) => val);
 }
 
-let seconds = 30; // timer matching
+let seconds = 10; // timer matching
 export const countdown = (room: string) => {
+  io.to(room).emit("AllQuestion", quizzes)
   shuffle();
   const interval = setInterval(() => {
     io.to(room).emit("matching", seconds);
@@ -26,16 +27,16 @@ export const countdown = (room: string) => {
       clearInterval(interval);
 
       setTimeout(() => {
-        io.to(users[0].room).emit("question", shuffled[0]);
+        io.to(waitingRoomOne).emit("question", shuffled[0]);
         shuffled.splice(0, 1);
 
-        timer(users[0].room);
+        timer(waitingRoomOne);
         counter++;
 
-        io.to(users[0].room).emit("counter", counter);
+        io.to(waitingRoomOne).emit("counter", counter);
         console.log(counter);
       }, 3000);
-      seconds = 30;
+      seconds = 10;
     }
   }, 1000);
 };
@@ -51,15 +52,15 @@ const timer = (room: string) => {
 
       if (counter < 5) {
         setTimeout(() => {
-          io.to(users[0].room).emit("question", shuffled[0]);
+          io.to(waitingRoomOne).emit("question", shuffled[0]);
           shuffled.splice(0, 1);
 
-          timer(users[0].room);
+          timer(waitingRoomOne);
           counter++;
 
-          io.to(users[0].room).emit("counter", counter);
+          io.to(waitingRoomOne).emit("counter", counter);
           console.log(counter);
-        }, 6000);
+        }, 4000);
       }
       if (counter === 5) {
         counter = 0;
