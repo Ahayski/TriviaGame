@@ -26,35 +26,34 @@ import { ButtonText } from "@gluestack-ui/themed";
 import { Link } from "@gluestack-ui/themed";
 import { LayoutBg } from "../Layout/LayoutBg";
 import { ImageLogo } from "../components/Image";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useUser } from "@clerk/clerk-expo";
 import {
   SET_EMAIL,
   SET_AVATAR,
   SET_USERNAME,
+  SET_ALL,
 } from "../store/slices/userSlices";
-import { APIGO } from "../utils/axios";
+
+import { ApiRockGo } from "../utils/axios";
+import { RootState } from "../store/types/rootTypes";
+import { UseAvatar } from "../hooks/Avatar/UseAvatar";
+import { SET_TOKEN } from "../store/slices/tokenUser";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { hendelUseUser } from "../hooks/User/useUser";
 
 export const ChoseAvatar = ({ navigation }: any) => {
   const [hoveredItemId, setHoveredItemId] = useState(null);
-  const [selectAvatar, setSelectAvatar] = useState<number>(0);
+
   const dispatch = useDispatch();
+
   const { isLoaded, isSignedIn, user } = useUser();
-
-  const hendelAvatar = (id: number) => {
-    setSelectAvatar(id);
-  };
-
+  const { GetAvatarFre, avatarGETFre, selectAvatar, setSelectAvatar } =
+    UseAvatar();
+  const { setName, handleRegister } = hendelUseUser({ navigation });
   useEffect(() => {
     // GetAvatarFre();
-    const GetAvatarFre = async () => {
-      try {
-        const response = await APIGO.get("/avatars_zero");
-        console.log("hallo", response.data); // Assuming you want to log the response
-      } catch (error) {
-        console.error("tes", error);
-      }
-    };
+
     GetAvatarFre();
     console.log("Komponen App dimuat");
     if (isLoaded && isSignedIn) {
@@ -77,85 +76,89 @@ export const ChoseAvatar = ({ navigation }: any) => {
               </Text>
 
               <Box>
-                <Box
-                  display="flex"
-                  p={2}
-                  flexDirection="row"
-                  flexWrap="wrap"
-                  width={300}
-                  justifyContent="center"
-                  gap={10}
-                >
-                  {avatarReguler.map((item: any) => (
-                    <TouchableOpacity
-                      onPress={() => {
-                        dispatch(SET_AVATAR(item.avatar));
-                        hendelAvatar(item.id);
-                      }}
-                      key={item.id}
-                      onPressIn={() => setHoveredItemId(item.id)}
-                      onPressOut={() => {
-                        setHoveredItemId(null);
-                        setSelectAvatar(0);
-                      }}
-                    >
-                      {selectAvatar === item.id && (
-                        <Box
-                          position="absolute"
-                          bottom={0}
-                          right={0}
-                          zIndex={1}
-                        >
-                          <AntDesign
-                            name="checkcircle"
-                            size={24}
-                            color="#59B4DD"
+                <FormControl>
+                  <Box
+                    display="flex"
+                    p={2}
+                    flexDirection="row"
+                    flexWrap="wrap"
+                    width={300}
+                    justifyContent="center"
+                    gap={10}
+                  >
+                    {avatarGETFre?.map((item: any) => (
+                      <TouchableOpacity
+                        onPress={() => {
+                          setSelectAvatar(item.id);
+                          dispatch(SET_AVATAR(item.avatarImage));
+                        }}
+                        key={item.id}
+                        onPressIn={() => setHoveredItemId(item.id)}
+                        onPressOut={() => {
+                          setHoveredItemId(null);
+                          setSelectAvatar(0);
+                        }}
+                      >
+                        {selectAvatar === item.id && (
+                          <Box
+                            position="absolute"
+                            bottom={0}
+                            right={0}
+                            zIndex={1}
+                          >
+                            <AntDesign
+                              name="checkcircle"
+                              size={24}
+                              color="#59B4DD"
+                            />
+                          </Box>
+                        )}
+                        <Avatar size="lg" borderRadius="$full">
+                          <AvatarImage
+                            alt="avatar"
+                            style={{
+                              transform: [
+                                { scale: hoveredItemId === item.id ? 1.4 : 1 },
+                              ],
+                            }}
+                            source={item.avatarImage}
                           />
-                        </Box>
-                      )}
-                      <Avatar size="lg" borderRadius="$full">
-                        <AvatarImage
-                          alt="avatar"
-                          style={{
-                            transform: [
-                              { scale: hoveredItemId === item.id ? 1.4 : 1 },
-                            ],
-                          }}
-                          source={item.avatar}
-                        />
-                      </Avatar>
-                    </TouchableOpacity>
-                  ))}
-                  <Input
-                    size="md"
-                    width={"90%"}
-                    variant="outline"
-                    bg="white"
-                    mt={15}
-                    borderRadius={"$xl"}
-                  >
-                    <InputSlot pl="$3">
-                      <FontAwesome
-                        name={"pencil-square-o"}
-                        size={24}
+                        </Avatar>
+                      </TouchableOpacity>
+                    ))}
+                    <Input
+                      size="md"
+                      width={"90%"}
+                      variant="outline"
+                      bg="white"
+                      mt={15}
+                      borderRadius={"$xl"}
+                    >
+                      <InputSlot pl="$3">
+                        <FontAwesome
+                          name={"pencil-square-o"}
+                          size={24}
+                          color="black"
+                        ></FontAwesome>
+                      </InputSlot>
+                      <InputField
                         color="black"
-                      ></FontAwesome>
-                    </InputSlot>
-                    <InputField
-                      color="black"
-                      placeholder="your name..."
-                      onChangeText={(text) => dispatch(SET_USERNAME(text))}
-                    />
-                  </Input>
-                  <Button
-                    width={"90%"}
-                    bg="#59B4DD"
-                    borderRadius="$xl"
-                    onPress={() => navigation.navigate("Home")}
-                  >
-                    <ButtonText>Submit</ButtonText>
-                  </Button>
-                </Box>
+                        type="text"
+                        placeholder="your name..."
+                        onChangeText={(text) => setName(text)}
+                      />
+                    </Input>
+                    <Button
+                      onPress={handleRegister}
+                      disabled={!selectAvatar || !setName}
+                      bg="#59B4DD"
+                      borderRadius="$xl"
+                      width={"90%"}
+                    >
+                      <ButtonText>Submit</ButtonText>
+                    </Button>
+                  </Box>
+                </FormControl>
               </Box>
             </Box>
           </ScrollView>

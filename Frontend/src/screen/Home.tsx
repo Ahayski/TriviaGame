@@ -23,23 +23,26 @@ import { ToastAndroid } from "react-native";
 import { SET_SIZE } from "../store/slices/sizeRoomSlices";
 import { SET_USERS_ROOM } from "../store/slices/usersInRoomSlices";
 import socket from "../utils/socket";
+import { ApiRockGo } from "../utils/axios";
+import { SET_ALL } from "../store/slices/userSlices";
 
 export const Home = ({ navigation }: any) => {
-  const user = useSelector((state: RootState) => state.user.data);
   const roomSize = useSelector((state: RootState) => state.sizeRoom.size);
+  const Token = useSelector((state: RootState) => state.tokenUser.token);
+  // console.log("token", Token);
   const usersInRoom = useSelector((state: RootState) => state.usersInRoom.data);
   const dispatch = useDispatch();
-  console.log("roomSize", roomSize);
+
+  const user = useSelector((state: RootState) => state.user.data);
 
   async function startGame() {
     try {
-
-      socket.emit('joinRoom', {
-        username: user.username,
-        avatar: user.avatar
+      socket.emit("joinRoom", {
+        username: user.name, // ubah karna response backend
+        avatar: user.avatar,
       });
-      socket.on('matching', (data) => { })
-      navigation.navigate("MatchPage")
+      socket.on("matching", (data) => {});
+      navigation.navigate("MatchPage");
     } catch (error) {
       alert("Network error");
     }
@@ -111,7 +114,7 @@ export const Home = ({ navigation }: any) => {
               source={
                 user.avatar
                   ? user.avatar
-                  : require("../../assets/avatar/avatar3.jpg")
+                  : require("../../assets/avatar/avatar2.jpg")
               }
             />
           </Avatar>
@@ -136,7 +139,7 @@ export const Home = ({ navigation }: any) => {
           </Pressable>
 
           <Text color="white" mt={20}>
-            {user.username ? user.username : "Molusca_Bertulang"}
+            {user.name ? user.name : "username"}
           </Text>
         </Box>
 
