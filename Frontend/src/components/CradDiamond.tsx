@@ -10,11 +10,13 @@ import { useDispatch } from "react-redux";
 import { SET_ADD_DIAMOND } from "../store/slices/userSlices";
 
 export const CradDiamond = (props: DiamonData) => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   return (
     <Box key={props.id}>
       <HStack mt={10}>
-        <TouchableOpacity onPress={() => dispatch(SET_ADD_DIAMOND(props.pcs))}>
+        <TouchableOpacity
+          onPress={() => dispatch(SET_ADD_DIAMOND(props.amount))}
+        >
           <Box
             display="flex"
             w={119}
@@ -42,7 +44,7 @@ export const CradDiamond = (props: DiamonData) => {
                 color="#24FF00"
                 fontSize="$lg"
               >
-                {props.pcs}
+                {props.amount}
               </Text>
 
               <Box w={90} h={80}>
@@ -58,13 +60,14 @@ export const CradDiamond = (props: DiamonData) => {
               </Box>
               <HStack>
                 <Text color="#F36C21" fontWeight="bold" fontSize="$md" mt={2}>
-                  {props.price}
+                  Rp.{props.price}
                 </Text>
               </HStack>
             </LinearGradient>
           </Box>
         </TouchableOpacity>
       </HStack>
+      <Box></Box>
     </Box>
   );
 };

@@ -42,7 +42,7 @@ export const Login = () => {
         setActive?.({ session: createdSessionId });
       } else {
         // Use signIn or signUp for next steps such as MFA
-        signIn
+        signIn;
       }
     } catch (err) {
       console.error("OAuth error", err);

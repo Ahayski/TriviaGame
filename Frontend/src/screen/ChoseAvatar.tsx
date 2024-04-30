@@ -38,29 +38,35 @@ import {
 import { ApiRockGo } from "../utils/axios";
 import { RootState } from "../store/types/rootTypes";
 import { UseAvatar } from "../hooks/Avatar/UseAvatar";
-import { SET_TOKEN } from "../store/slices/tokenUser";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { hendelUseUser } from "../hooks/User/useUser";
 
 export const ChoseAvatar = ({ navigation }: any) => {
   const [hoveredItemId, setHoveredItemId] = useState(null);
-
-  const dispatch = useDispatch();
-
-  const { isLoaded, isSignedIn, user } = useUser();
   const { GetAvatarFre, avatarGETFre, selectAvatar, setSelectAvatar } =
     UseAvatar();
-  const { setName, handleRegister } = hendelUseUser({ navigation });
-  useEffect(() => {
-    // GetAvatarFre();
+  const { setName, handleRegister, UserLoginAll, userAll } = hendelUseUser({
+    navigation,
+  });
+  // console.log("idAVATAR", selectAvatar);
+  const emailUser = useSelector((state: RootState) => state.user.data.email);
+  const chkUser = userAll.some((user: any) => user.email === emailUser);
 
+  const dispatch = useDispatch();
+  // console.log("hallo", emailUser);
+  const { isLoaded, isSignedIn, user } = useUser();
+
+  useEffect(() => {
     GetAvatarFre();
-    console.log("Komponen App dimuat");
+    UserLoginAll();
+
     if (isLoaded && isSignedIn) {
       const email = user.emailAddresses[0].emailAddress;
       dispatch(SET_EMAIL(email));
     }
-  }, [isLoaded, isSignedIn]);
+    if (chkUser) {
+      navigation.navigate("Home");
+    }
+  }, [isLoaded, isSignedIn, chkUser]);
 
   return (
     <View style={{ width: "100%", height: "100%" }}>
@@ -149,7 +155,7 @@ export const ChoseAvatar = ({ navigation }: any) => {
                       />
                     </Input>
                     <Button
-                      onPress={handleRegister}
+                      onPress={() => handleRegister()}
                       disabled={!selectAvatar || !setName}
                       bg="#59B4DD"
                       borderRadius="$xl"

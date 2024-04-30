@@ -23,7 +23,6 @@ const Root = (props: Props) => {
           component={ChoseAvatar}
           options={{ headerShown: false }}
         />
-
         <Stack.Screen
           name="Home"
           component={Home}

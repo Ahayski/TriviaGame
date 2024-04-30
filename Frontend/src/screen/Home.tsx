@@ -25,16 +25,23 @@ import { SET_USERS_ROOM } from "../store/slices/usersInRoomSlices";
 import socket from "../utils/socket";
 import { ApiRockGo } from "../utils/axios";
 import { SET_ALL } from "../store/slices/userSlices";
+import { hendelUseUser } from "../hooks/User/useUser";
+import { UseAvatar } from "../hooks/Avatar/UseAvatar";
 
 export const Home = ({ navigation }: any) => {
   const roomSize = useSelector((state: RootState) => state.sizeRoom.size);
   const Token = useSelector((state: RootState) => state.tokenUser.token);
-  // console.log("token", Token);
   const usersInRoom = useSelector((state: RootState) => state.usersInRoom.data);
   const dispatch = useDispatch();
-
   const user = useSelector((state: RootState) => state.user.data);
-
+  console.log("user", user);
+  const { selectAvatar } = UseAvatar();
+  const { handleRegister, UserLoginId } = hendelUseUser({
+    navigation,
+  });
+  useEffect(() => {
+    handleRegister();
+  }, [user.diamond]);
   async function startGame() {
     try {
       socket.emit("joinRoom", {
@@ -109,14 +116,7 @@ export const Home = ({ navigation }: any) => {
             borderWidth={2}
             borderColor="#000"
           >
-            <AvatarImage
-              alt="avatar"
-              source={
-                user.avatar
-                  ? user.avatar
-                  : require("../../assets/avatar/avatar2.jpg")
-              }
-            />
+            <AvatarImage alt="avatar" source={user.avatar!} />
           </Avatar>
 
           <Pressable onPress={() => navigation.navigate("UpdateAvatar")}>
