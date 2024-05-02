@@ -7,6 +7,7 @@ const initialUser: { data: IUser } = {
     name: "", // di ubah karna di samakan response backend
     email: "",
     avatar: "",
+    avatarId: 0,
     diamond: 0,
   },
 };
@@ -23,6 +24,12 @@ export const userSlice = createSlice({
       state.data.name = action.payload.name;
       state.data.email = action.payload.email;
       state.data.diamond = action.payload.diamond;
+    },
+    SET_ID: (state, action) => {
+      state.data.id = action.payload;
+    },
+    SET_AVATARID: (state, action) => {
+      state.data.avatarId = action.payload;
     },
     SET_EMAIL: (state, action) => {
       const payload = action.payload;
@@ -61,6 +68,8 @@ export const {
   SET_ADD_DIAMOND,
   SET_MIN_DIAMOND,
   SET_ALL,
+  SET_ID,
+  SET_AVATARID,
 } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -1,18 +1,25 @@
 import { Button, ButtonText, HStack } from "@gluestack-ui/themed";
 import { Box } from "@gluestack-ui/themed";
-import React from "react";
+import React, { ButtonHTMLAttributes, ClassAttributes } from "react";
 import { TouchableOpacity } from "react-native";
 interface ButtonProps {
   nameOne: string;
   nameTwo: string;
-  onPressSave?: () => void;
-  onPressCancel?: () => void;
+  // onPressSave?: ClassAttributes<HTMLButtonElement> &
+  //   ButtonHTMLAttributes<HTMLButtonElement>;
+  // onPressCancel?: ClassAttributes<HTMLButtonElement> &
+  //   ButtonHTMLAttributes<HTMLButtonElement>;
+  onPressSave?: any;
+  onPressCancel?: any;
+  rest?: React.ComponentProps<"button">;
 }
+
 export const ButtonComponen = ({
   nameOne,
   nameTwo,
   onPressSave,
   onPressCancel,
+  ...rest
 }: ButtonProps) => {
   return (
     <Box>
@@ -26,28 +33,38 @@ export const ButtonComponen = ({
         h={100}
       >
         <HStack space={"xl"}>
-          <TouchableOpacity onPress={onPressCancel}>
+          <TouchableOpacity>
             <Button
               width={120}
               h={42}
+              {...rest}
               borderRadius={12}
               borderWidth={2}
               borderColor="#950707"
               bg="#CF0A0A"
+              onPress={() => {
+                console.log("cancel");
+                onPressCancel(); // Invoke onPressCancel if it exists
+              }}
               px={4}
             >
               <ButtonText fontSize={"$lg"}>{nameOne}</ButtonText>
             </Button>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={onPressSave}>
+          <TouchableOpacity>
             <Button
               width={120}
               h={42}
               borderRadius={12}
               borderWidth={2}
+              {...rest}
               borderColor="#07955e"
               bg="#0ACF83"
+              onPress={() => {
+                console.log("onsave");
+                onPressSave && onPressSave();
+              }}
               px={4}
             >
               <ButtonText fontSize={"$lg"}>{nameTwo}</ButtonText>

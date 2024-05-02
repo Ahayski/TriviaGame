@@ -8,11 +8,12 @@ import { TouchableOpacity } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_AVATAR, SET_MIN_DIAMOND } from "../store/slices/userSlices";
 import { AvatarData } from "../interfaces/Avatar";
+import { AntDesign } from "@expo/vector-icons";
 
 import { UseAvatar } from "../hooks/Avatar/UseAvatar";
 
 export const CradAvatar = (props: AvatarData) => {
-  // console.log(props)
+  const [selectAvatar, setSelectAvatar] = React.useState(0);
   const dispatch = useDispatch();
 
   // console.log("tokenRidux", tokenRidux);
@@ -22,7 +23,10 @@ export const CradAvatar = (props: AvatarData) => {
   return (
     <Box key={props.id}>
       <HStack mt={10} space={"md"}>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setSelectAvatar(props.id!)}
+          onPressOut={() => setSelectAvatar(0)}
+        >
           <Box
             display="flex"
             w={106}
@@ -43,6 +47,11 @@ export const CradAvatar = (props: AvatarData) => {
                 alignItems: "center",
               }}
             >
+              {selectAvatar === props.id && (
+                <Box position="absolute" bottom={0} right={0} zIndex={1}>
+                  <AntDesign name="checkcircle" size={24} color="#59B4DD" />
+                </Box>
+              )}
               <Avatar
                 w={75}
                 h={75}

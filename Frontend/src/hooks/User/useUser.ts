@@ -1,31 +1,50 @@
-import { useDispatch, useSelector } from "react-redux";
-import { ApiRockGo } from "../../utils/axios";
-import { RootState } from "../../store/types/rootTypes";
 import { useState } from "react";
-import { SET_ALL } from "../../store/slices/userSlices";
+import { useDispatch, useSelector } from "react-redux";
 import { SET_TOKEN } from "../../store/slices/tokenUser";
-import { UseAvatar } from "../Avatar/UseAvatar";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
+import {
+  SET_ALL,
+  SET_AVATAR,
+  SET_AVATARID,
+} from "../../store/slices/userSlices";
+import { RootState } from "../../store/types/rootTypes";
+import { ApiRockGo } from "../../utils/axios";
 
 export const hendelUseUser = ({ navigation }: any) => {
   const [name, setName] = useState<string>("");
   const [userAll, setUserAll] = useState([]);
-  const { UpdateAvatar, selectAvatar } = UseAvatar();
-  const userEmail = useSelector((state: RootState) => state.user.data.email);
+  const [register, setRegister] = useState([]);
+  const user = useSelector((state: RootState) => state.user.data);
+  const tokenRidux = useSelector((state: RootState) => state.tokenUser.token);
+  // console.log("token", tokenRidux);
   const dispatch = useDispatch();
+
+  const UserLoginAll = async () => {
+    try {
+      const response = await ApiRockGo.get("/api/users");
+      setUserAll(response.data.data);
+      // console.log("tes", response.data.data);
+      // console.log("tes", userAll);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const handleRegister = async () => {
     try {
       const response = await ApiRockGo.post("/api/user/signup", {
-        name: name,
-        email: userEmail,
+        email: user.email,
       });
       dispatch(SET_ALL(response.data.data));
+      dispatch(SET_AVATARID(response.data.data.avatar));
       dispatch(SET_TOKEN(response.data.token));
-      const token = await AsyncStorage.setItem("token", response.data.token); //set token ke localstorage
+      setRegister(response.data.data);
       console.log("regis", response.data);
       if (response.data.data.email) {
-        UpdateAvatar(selectAvatar);
+        UpdateUser(
+          response.data.data.avatar,
+          response.data.data.name,
+          response.data.data.email
+        );
+
         navigation.navigate("Home");
       }
     } catch (err) {
@@ -33,11 +52,34 @@ export const hendelUseUser = ({ navigation }: any) => {
     }
   };
 
-  const UserLoginAll = async () => {
+  const UpdateUser = async (id: any, name: string, email: string) => {
+    console.log("clgTEs", id, name, email);
     try {
-      const response = await ApiRockGo.get("/api/users");
-      setUserAll(response.data.data);
-      console.log("userall", response.data.data);
+      const formData = new FormData();
+      formData.append("avatarId", id);
+      formData.append("name", name);
+      formData.append("email", email);
+      const response = await ApiRockGo.patch("/api/user", formData, {
+        headers: {
+          Authorization: `Bearer ${tokenRidux}`,
+          "Content-Type": "multipart/form-data", // Tetapkan jenis konten sebagai form-data
+        },
+      });
+
+      // dispatch(SET_ALL(response.data.data));
+      dispatch(SET_AVATAR(response.data.data.avatar.avatarImage));
+      dispatch(SET_AVATARID(response.data.data.avatar.id));
+      console.log("updateUSER", response.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const UserLoginId = async (id: number) => {
+    try {
+      const response = await ApiRockGo.get(`/api/user/${id}`);
+      // dispatch(SET_ALL(response.data.data));
+      //  dispatch(SET_AVATAR(response.data.data.avatar.avatarImage));
+      console.log("tesla", response.data.data);
     } catch (error) {
       console.log(error);
     }
@@ -47,6 +89,9 @@ export const hendelUseUser = ({ navigation }: any) => {
     handleRegister,
     setName,
     UserLoginAll,
+    UserLoginId,
     userAll,
+    UpdateUser,
+    register,
   };
 };
