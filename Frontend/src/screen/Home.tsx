@@ -19,6 +19,7 @@ import { ImageLogo } from "../components/Image";
 import { LayoutBg } from "../Layout/LayoutBg";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/types/rootTypes";
+import { useAuth } from "@clerk/clerk-expo";
 import { ToastAndroid } from "react-native";
 import { SET_SIZE } from "../store/slices/sizeRoomSlices";
 import { SET_USERS_ROOM } from "../store/slices/usersInRoomSlices";
@@ -33,6 +34,9 @@ export const Home = ({ navigation }: any) => {
   const Token = useSelector((state: RootState) => state.tokenUser.token);
   const usersInRoom = useSelector((state: RootState) => state.usersInRoom.data);
   const dispatch = useDispatch();
+
+  const { signOut } = useAuth();
+
   const user = useSelector((state: RootState) => state.user.data);
   console.log("user", user);
   const { selectAvatar } = UseAvatar();
@@ -48,7 +52,7 @@ export const Home = ({ navigation }: any) => {
         username: user.name, // ubah karna response backend
         avatar: user.avatar,
       });
-      socket.on("matching", (data) => {});
+      socket.on("matching", (data) => { });
       navigation.navigate("MatchPage");
     } catch (error) {
       alert("Network error");
@@ -155,13 +159,13 @@ export const Home = ({ navigation }: any) => {
               <ButtonText>Start Game</ButtonText>
             </TouchableOpacity>
           </Button>
+          <Button bg="red" w={"40%"} borderRadius={"$xl"} mt={20}>
+            <TouchableOpacity onPress={() => { signOut(); }}>
+              <ButtonText>Logout</ButtonText>
+            </TouchableOpacity>
+          </Button>
         </Center>
       </LayoutBg>
     </View>
   );
 };
-
-// Daftar perubahan :
-// 1. Di folder components aku tambahin file "TimerWaitingRoom.tsx"
-// 2. DI store aku tambahin redux terbaru (timerSlices dll)
-// 3. Di matchpage bagian hooksnya (di dalam )

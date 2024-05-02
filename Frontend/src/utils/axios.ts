@@ -5,5 +5,6 @@ export const APIGO = axios.create({
 });
 
 export const ApiRockGo = axios.create({
-  baseURL: "https://7c57-2404-8000-1003-2003-a55c-5cdc-a778-2bb.ngrok-free.app",
+
+  baseURL: "https://2b56-2404-8000-1095-99a-1d96-7db7-d90-5d0b.ngrok-free.app/",
 });

@@ -34,28 +34,11 @@ const tokenCache = {
   },
 };
 
-const SignOut = () => {
-  const { isLoaded, signOut } = useAuth();
-  if (!isLoaded) {
-    return null;
-  }
-  return (
-    <View>
-      <Button
-        title="Sign Out"
-        onPress={() => {
-          signOut();
-        }}
-      />
-    </View>
-  );
-};
-
 export default function App() {
   const Stack = createNativeStackNavigator();
 
   useEffect(() => {
-    socket.on("connect", () => {});
+    socket.on("connect", () => { });
   }, []);
 
   return (
@@ -67,7 +50,6 @@ export default function App() {
         <Provider store={store}>
           <SignedIn>
             <Root />
-            <SignOut />
           </SignedIn>
           <SignedOut>
             <RootLogin />

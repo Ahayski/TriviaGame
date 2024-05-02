@@ -17,8 +17,13 @@ import { CradAvatar } from "../components/CradAvatar";
 import { CradUser } from "../components/CradUser";
 import { UserGamee } from "../json/User";
 import { ButtonComponen } from "../components/ButtonComponen";
+import { useSelector } from 'react-redux';
+import { RootState } from "../store/types/rootTypes";
 
 export const Champion = () => {
+    const user = useSelector((state: RootState) => state.user.data)
+    const score = useSelector((state: RootState) => state.score.score)
+
     return (
         <LayoutBg>
             <View style={{ width: "100%", height: "100%", minHeight: "100%" }}>
@@ -62,7 +67,7 @@ export const Champion = () => {
                                         MasBro
                                     </Text>
                                     <Text color="#FFC700" fontSize={"$sm"}>
-                                        4000
+                                        100
                                     </Text>
                                 </Box>
                             </Avatar>
@@ -77,7 +82,7 @@ export const Champion = () => {
                                 </Box>
                                 <AvatarImage
                                     alt="Avatar"
-                                    source={require("../../assets/avatar/avatar2.jpg")}
+                                    source={user.avatar}
                                 />
                                 <Box
                                     h={50}
@@ -87,10 +92,10 @@ export const Champion = () => {
                                     mt={100}
                                 >
                                     <Text color="white" fontSize={"$lg"} fontWeight="bold">
-                                        Santi
+                                        {user.name}
                                     </Text>
                                     <Text color="#FFC700" fontSize={"$sm"}>
-                                        8000
+                                        {score}
                                     </Text>
                                 </Box>
                             </Avatar>
@@ -111,7 +116,7 @@ export const Champion = () => {
                                         Yanti
                                     </Text>
                                     <Text color="#FFC700" fontSize={"$sm"}>
-                                        4000
+                                        0
                                     </Text>
                                 </Box>
                             </Avatar>

@@ -1,7 +1,12 @@
+export interface JoinRoomData {
+  username: string;
+  avatar: string;
+}
+
 export interface IUsers {
   id: string;
   username: string;
-  // avatar: string;
+  avatar: string;
   room: string;
 }
 
